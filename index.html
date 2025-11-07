@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruan Coetzee | Portfolio</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+    
+    <link rel="stylesheet" href="style.css" /> 
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6", // Blue-500
+              secondary: "#10B981", // Emerald-500
+              "dark-bg": "#0A0A0A", // Near-black for main background
+              "card-bg": "#18181B", // Zinc-800 for cards
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-dark-bg text-white">
+    <div id="custom-cursor-dot"></div>
+    <div 
+        id="cursor-trail" 
+        class="fixed w-96 h-96 rounded-full bg-primary opacity-5 filter blur-3xl pointer-events-none transform -translate-x-1/2 -translate-y-1/2 z-0"
+        style="transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;"
+    ></div>
+    
+    <div id="vanta-bg" class="vanta-bg"></div>
+
+    <div class="h-1 w-full bg-gray-900 fixed top-0 z-50">
+      <div
+        id="scroll-progress"
+        class="h-full bg-gradient-to-r from-primary to-secondary"
+        style="width: 0%"
+      ></div>
+    </div>
+
+    <nav
+      class="bg-dark-bg bg-opacity-90 backdrop-blur-lg shadow-2xl sticky top-1 z-50 border-b border-gray-800 transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <span
+              class="text-2xl font-black text-primary hover:text-secondary transition-colors duration-300"
+              >Ruan Coetzee</span
+            >
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="#home"
+              class="nav-link text-white hover:text-primary font-medium"
+              >Home</a
+            >
+            <a
+              href="#about"
+              class="nav-link text-white hover:text-primary font-medium"
+              >About</a
+            >
+            <a
+              href="#projects"
+              class="nav-link text-white hover:text-primary font-medium"
+              >Projects</a
+            >
+            <a
+              href="#certificates"
+              class="nav-link text-white hover:text-primary font-medium"
+              >Certificates</a
+            >
+            <a
+              href="#contact"
+              class="nav-link text-white hover:text-primary font-medium"
+              >Contact</a
+            >
+          </div>
+          <div class="md:hidden flex items-center">
+            <button
+              id="menu-toggle"
+              class="text-gray-300 hover:text-primary focus:outline-none p-2 rounded-md transition-colors duration-200"
+            >
+              <i data-feather="menu" class="h-6 w-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-dark-bg bg-opacity-95 border-t border-gray-800"
+      >
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <a
+            href="#home"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-primary hover:bg-gray-800 transition-colors"
+            >Home</a
+          >
+          <a
+            href="#about"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-primary hover:bg-gray-800 transition-colors"
+            >About</a
+          >
+          <a
+            href="#projects"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-primary hover:bg-gray-800 transition-colors"
+            >Projects</a
+          >
+          <a
+            href="#certificates"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-primary hover:bg-gray-800 transition-colors"
+            >Certificates</a
+          >
+          <a
+            href="#contact"
+            class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-primary hover:bg-gray-800 transition-colors"
+            >Contact</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <section
+      id="home"
+      class="pt-32 pb-20 relative overflow-hidden min-h-screen flex items-center"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="md:w-3/5 mb-10 md:mb-0 bounce-in
+         bg-black/50 p-6 rounded-xl backdrop-blur-md
+         md:bg-transparent md:p-0 md:rounded-none md:backdrop-blur-none">
+            <h1
+              class="text-4xl md:text-7xl font-extrabold mb-6 text-white neon-text animate-fadeIn"
+            >
+              Hi, I'm
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-400 to-red-400 neon-text-glow"
+                >Ruan Coetzee</span
+              >
+            </h1>
+            <h2
+              class="text-2xl md:text-4xl font-semibold mb-8 leading-snug text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500 neon-text-sm animate-fadeIn delay-100"
+            >
+              Front-End Developer · AI Engineer · Geospatial Analyst
+            </h2>
+            <p
+              class="text-xl text-gray-300 mb-10 max-w-3xl leading-relaxed animate-fadeIn delay-200"
+            >
+              I build
+              <span class="text-primary font-extrabold"
+                >immersive digital experiences</span
+              >
+              that combine
+              <span class="text-secondary font-extrabold"
+                >cutting-edge technology</span
+              >
+              with
+              <span class="text-yellow-400 font-extrabold"
+                >thoughtful design</span
+              >.
+            </p>
+            <div class="flex space-x-4 animate-fadeIn delay-300">
+              <a
+                href="#contact"
+                class="magnetic-button relative overflow-hidden rounded-lg"
+              >
+                <span
+                  class="bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-blue-500/50 hover:shadow-blue-500/70 transition-shadow duration-500 rounded-lg"
+                >
+                  <span
+                    class="relative z-10 flex items-center px-8 py-3 text-white font-semibold"
+                  >
+                    Get In Touch
+                    <svg
+                      class="ml-2 w-5 h-5 transition-transform duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
+                    </svg>
+                  </span>
+                </span>
+              </a>
+              <a
+                href="#projects"
+                class="magnetic-button border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-lg font-semibold relative overflow-hidden transition-colors duration-300"
+              >
+                <span class="relative z-10 flex items-center">
+                  View Projects
+                  <svg
+                    class="ml-2 w-5 h-5 transition-transform duration-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    ></path>
+                  </svg>
+                </span>
+              </a>
+            </div>
+          </div>
+          <div
+            class="w-48 md:w-1/6 bounce-in float-animate mx-auto md:mx-0"
+            style="animation-delay: 0.3s"
+          >
+            <div class="relative group card-hover">
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-xl opacity-20 group-hover:opacity-50 transition-all duration-500 filter blur-lg"
+              ></div>
+              <div
+                class="relative overflow-hidden rounded-xl shadow-2xl border-2 border-gray-700 group-hover:border-primary transition-colors"
+              >
+                <img
+                  src="images/IMG-20231219-WA0021%20(1).jpg"
+                  alt="Ruan Coetzee"
+                  class="w-full h-auto transition-transform duration-500 group-hover:scale-105 object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="border-gray-800 max-w-7xl mx-auto" />
+
+    <section id="about" class="py-20 relative bg-dark-bg bg-opacity-70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16 bounce-in">
+          <h2
+            class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 neon-text"
+          >
+            About Me
+          </h2>
+          <div
+            class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"
+          ></div>
+        </div>
+        <div
+          class="flex flex-col md:flex-row bounce-in"
+          style="animation-delay: 0.2s"
+        >
+          <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+            <h3
+              class="text-3xl font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500 neon-text-sm animate-fadeIn"
+            >
+              Background & Approach
+            </h3>
+            <p
+              class="text-lg text-gray-300 mb-6 font-medium leading-relaxed animate-fadeIn delay-100"
+            >
+              With a BSc Honours in Geography and Environmental Sciences, I've
+              developed a systems-thinking approach to technology. My current
+              focus on AI Engineering enhances my ability to create
+              intelligent, data-driven solutions.
+            </p>
+            <p
+              class="text-lg text-gray-300 mb-6 font-medium leading-relaxed animate-fadeIn delay-200"
+            >
+              I bridge technical expertise with environmental insight to deliver
+              solutions that are both innovative and sustainable. I thrive on
+              complex problem-solving.
+            </p>
+            <div class="flex items-center space-x-4">
+                <a
+                href="certificates/Ruan_Coetzee_CV_2025.pdf"
+                target="_blank"
+                class="magnetic-button relative overflow-hidden inline-flex items-center text-white 
+                       bg-primary hover:bg-blue-600 border-2 border-primary py-3 px-8 rounded-lg 
+                       font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <i data-feather="download" class="mr-3 h-6 w-6"></i>
+                <span>Download CV (2025)</span>
+              </a>
+              </div>
+          </div>
+          <div class="md:w-1/2">
+            <h3
+              class="text-3xl font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-500 neon-text-sm"
+            >
+              Core Skills
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div
+      class="skill-block card-hover bg-card-bg p-6 rounded-xl border border-gray-700 relative group transition-all duration-400"
+      style="animation-delay: 0.3s"
+    >
+      <div class="flex items-center mb-3">
+        <div
+          class="p-3 bg-primary/10 rounded-full mr-3 border border-primary/30"
+        >
+          <i
+            data-feather="code"
+            class="text-primary h-6 w-6 skill-icon"
+          ></i>
+        </div>
+        <h4 class="font-bold text-white text-xl">Web Development</h4>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >HTML/CSS</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >JavaScript</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >Tailwind</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >Responsive Design</span
+        >
+      </div>
+    </div>
+    <div
+      class="skill-block card-hover bg-card-bg p-6 rounded-xl border border-gray-700 relative group transition-all duration-400"
+      style="animation-delay: 0.4s"
+    >
+      <div class="flex items-center mb-3">
+        <div
+          class="p-3 bg-secondary/10 rounded-full mr-3 border border-secondary/30"
+        >
+          <i
+            data-feather="cpu"
+            class="text-secondary h-6 w-6 skill-icon"
+          ></i>
+        </div>
+        <h4 class="font-bold text-white text-xl">AI & Data</h4>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Python</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Prompt Engineering</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Flask</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Machine Learning</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Data Analysis</span
+        >
+      </div>
+    </div>
+    <div
+      class="skill-block card-hover bg-card-bg p-6 rounded-xl border border-gray-700 relative group transition-all duration-400"
+      style="animation-delay: 0.5s"
+    >
+      <div class="flex items-center mb-3">
+        <div
+          class="p-3 bg-primary/10 rounded-full mr-3 border border-primary/30"
+        >
+          <i
+            data-feather="map"
+            class="text-primary h-6 w-6 skill-icon"
+          ></i>
+        </div>
+        <h4 class="font-bold text-white text-xl">GIS & Mapping</h4>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >ArcGIS</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >QGIS</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >Digitizing</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >Global Mapper</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >Google Earth Engine</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >IGI Plan</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/50"
+          >IX Plan</span
+        >
+        <span
+          class="text-sm font-medium bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-600/col-span-2-50"
+          >Remote Sensing</span
+        >
+      </div>
+    </div>
+    <div
+      class="skill-block card-hover bg-card-bg p-6 rounded-xl border border-gray-700 relative group transition-all duration-400"
+      style="animation-delay: 0.6s"
+    >
+      <div class="flex items-center mb-3">
+        <div
+          class="p-3 bg-secondary/10 rounded-full mr-3 border border-secondary/50"
+        >
+          <i
+            data-feather="edit"
+            class="text-secondary h-6 w-6 skill-icon"
+          ></i>
+        </div>
+        <h4 class="font-bold text-white text-xl">
+          Editing & Writing
+        </h4>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Research</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Spreadsheets</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Logo Design</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Web Design</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >QR Design</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Poster Design</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Technical Writing</span
+        >
+        <span
+          class="text-sm font-medium bg-green-600/20 text-green-300 px-3 py-1 rounded-full border border-green-600/50"
+          >Copy Editing</span
+        >
+      </div>
+    </div>
+  </div>
+</div>
+    </section>
+
+    <hr class="border-gray-800 max-w-7xl mx-auto" />
+
+    <section id="projects" class="py-20 relative bg-dark-bg bg-opacity-90">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16 fade-in">
+          <h2
+            class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 neon-text"
+          >
+            Featured Projects
+          </h2>
+          <div
+            class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"
+          ></div>
+        </div>
+
+        <div class="w-full">
+          <div 
+            class="flex flex-wrap justify-center gap-2 md:gap-4 mb-10 border-b border-gray-700"
+            role="tablist"
+            aria-label="Project categories"
+          >
+            <button
+              class="tab-button active magnetic-button relative overflow-hidden text-lg md:text-xl font-semibold text-gray-400 hover:text-primary py-3 px-4"
+              role="tab"
+              aria-selected="true"
+              aria-controls="tab-content-website"
+              data-tab-target="#tab-content-website"
+            >
+              Website Designs
+            </button>
+            <button
+              class="tab-button magnetic-button relative overflow-hidden text-lg md:text-xl font-semibold text-gray-400 hover:text-primary py-3 px-4"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-content-gis"
+              data-tab-target="#tab-content-gis"
+            >
+              GIS & Remote Sensing
+            </button>
+            <button
+              class="tab-button magnetic-button relative overflow-hidden text-lg md:text-xl font-semibold text-gray-400 hover:text-primary py-3 px-4"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-content-logo"
+              data-tab-target="#tab-content-logo"
+            >
+              Logo Designs
+            </button>
+            <button
+              class="tab-button magnetic-button relative overflow-hidden text-lg md:text-xl font-semibold text-gray-400 hover:text-primary py-3 px-4"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-content-poster"
+              data-tab-target="#tab-content-poster"
+            >
+              Poster & Sticker Designs
+            </button>
+            <button
+              class="tab-button magnetic-button relative overflow-hidden text-lg md:text-xl font-semibold text-gray-400 hover:text-primary py-3 px-4"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-content-qr"
+              data-tab-target="#tab-content-qr"
+            >
+              QR Designs
+            </button>
+          </div>
+
+          <div class="mt-8">
+            <div
+              id="tab-content-website"
+              class="active"
+              data-tab-content
+              role="tabpanel"
+            >
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div
+                  class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group"
+                >
+                  <a href="https://albertiniapavers.co.za/" target="_blank">
+                    <img
+                      src="images/Albertinia_Pavers_Website.png"
+                      alt="Albertinia Pavers"
+                      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">
+                      Albertinia Pavers
+                    </h3>
+                    <p class="text-gray-400 mb-4 font-normal leading-normal">
+                      Professional website for a manufacturing company featuring
+                      product showcases, service details, and contact forms.
+                    </p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span
+                        class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full"
+                        >Web Development</span
+                      >
+                      <a
+                        href="https://albertiniapavers.netlify.app"
+                        target="_blank"
+                        class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors"
+                      >
+                        <span>Visit Website</span>
+                        <i
+                          data-feather="external-link"
+                          class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"
+                        ></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group"
+                >
+                  <a href="https://nailsbywilma.netlify.app" target="_blank">
+                    <img
+                      src="images/Nails_by_Wilma_Website.png"
+                      alt="Nails by Wilma"
+                      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma</h3>
+                    <p class="text-gray-400 mb-4 font-normal">
+                      An elegant website for a nail salon featuring services, pricing,
+                      and booking information.
+                    </p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span
+                        class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full"
+                        >Web Design</span
+                      >
+                      <a
+                        href="https://nailsbywilma.netlify.app"
+                        target="_blank"
+                        class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors"
+                      >
+                        <span>Visit Website</span>
+                        <i
+                          data-feather="external-link"
+                          class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"
+                        ></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group"
+                >
+                  <a href="https://ccautorepairs.netlify.app" target="_blank">
+                    <img
+                      src="images/CC_Auto_Repairs_Website.png"
+                      alt="CC Auto Repairs"
+                      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">
+                      CC Auto Repairs
+                    </h3>
+                    <p class="text-gray-400 mb-4 font-normal">
+                      A professional website for an auto repair shop with service
+                      information and contact details.
+                    </p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span
+                        class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full"
+                        >Web Development</span
+                      >
+                      <a
+                        href="https://ccautorepairs.netlify.app"
+                        target="_blank"
+                        class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors"
+                      >
+                        <span>Visit Website</span>
+                        <i
+                          data-feather="external-link"
+                          class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"
+                        ></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="tab-content-gis"
+              data-tab-content
+              role="tabpanel"
+              class="hidden"
+            >
+              <h3
+                class="text-3xl font-semibold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-secondary to-green-500 neon-text-sm"
+              >
+                Maps Created by Ruan Coetzee
+              </h3>
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/GEOG 321 Cities of the World (Ruan, 30195543).png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/GEOG 321 Cities of the World (Ruan, 30195543).png" alt="Cities of the World Map" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Cities of the World</h3>
+                    <p class="text-gray-400 mb-4 font-normal">GEOG 321 project map.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/GEOG 321 Cities of the World (Ruan, 30195543).png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types 2020.png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types 2020.png" alt="Land Cover Types 2020" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Land Cover Types (2020)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">A map showing land cover classifications for 2020.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types 2020.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types found in the Western Cape 2014.png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types found in the Western Cape 2014.png" alt="Western Cape Land Cover 2014" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Western Cape Land Cover (2014)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Land cover types found in the Western Cape (2014).</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Land cover types found in the Western Cape 2014.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Map of Overberg.png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Map of Overberg.png" alt="Map of Overberg" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Map of Overberg</h3>
+                    <p class="text-gray-400 mb-4 font-normal">A detailed map of the Overberg region.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Map of Overberg.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Mossel Bay Rivers.png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Mossel Bay Rivers.png" alt="Mossel Bay Rivers" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Mossel Bay Rivers</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Map showcasing the river systems in Mossel Bay.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Mossel Bay Rivers.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005).jpg" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005).jpg" alt="Rainfall Data 2005" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Yearly Rainfall Data (2005)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Geospatial representation of rainfall data for 2005.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005).jpg" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005-2020).png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005-2020).png" alt="Rainfall Data 2005-2020" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Yearly Rainfall Data (2005-2020)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Comparative rainfall data from 2005 to 2020.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2005-2020).png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2020).jpg" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2020).jpg" alt="Rainfall Data 2020" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Yearly Rainfall Data (2020)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Geospatial representation of rainfall data for 2020.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Rainfall yearly data (2020).jpg" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Study Area (Western Cape - District Municipalities).png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Study Area (Western Cape - District Municipalities).png" alt="Western Cape District Municipalities" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Western Cape Study Area</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Map of District Municipalities in the Western Cape.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Study Area (Western Cape - District Municipalities).png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee//Summer vs Winter, 2010 to 2020.png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Summer vs Winter, 2010 to 2020.png" alt="Summer vs Winter 2010-2020" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Summer vs Winter (2010-2020)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Seasonal comparison map from 2010 to 2020.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Summer vs Winter, 2010 to 2020.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Vaal River Research Project (Focus Area Final).png" target="_blank">
+                    <img src="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Vaal River Research Project (Focus Area Final).png" alt="Vaal River Research Project" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Vaal River Research Project</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Final focus area map for the Vaal River project.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">GIS Map</span>
+                      <a href="Portfolio Content (For Website)/GIS & Remote Sensing Projects/Maps Created by Ruan Coetzee/Vaal River Research Project (Focus Area Final).png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Map</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <hr class="border-gray-700 my-16 max-w-3xl mx-auto" />
+
+              <h3
+                class="text-3xl font-semibold mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-secondary to-green-500 neon-text-sm"
+              >
+                Research Projects
+              </h3>
+              <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <div class="p-6">
+                    <div class="flex items-start mb-4">
+                      <div class="p-3 bg-secondary/10 rounded-full mr-4 border border-secondary/30">
+                        <i data-feather="file-text" class="text-secondary h-6 w-6"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">
+                          GEOG 321 Research Project
+                        </h3>
+                        <p class="text-gray-400">
+                          A collaborative research project on Liveable Cities.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="text-right mt-4">
+                      <a
+                        href="Portfolio Content (For Website)\GIS & Remote Sensing Projects\Research Projects/GEOG 321 Research Project, Liveable Cities (Ruan, Avee & Viper).pdf"
+                        target="_blank"
+                        class="text-secondary hover:text-green-400 flex items-center justify-end font-medium transition-colors"
+                      >
+                        <span>View PDF</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <div class="p-6">
+                    <div class="flex items-start mb-4">
+                      <div class="p-3 bg-secondary/10 rounded-full mr-4 border border-secondary/30">
+                        <i data-feather="file-text" class="text-secondary h-6 w-6"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">
+                          GEOG 671 Mini Dissertation
+                        </h3>
+                        <p class="text-gray-400">
+                          Honours level mini-dissertation research.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="text-right mt-4">
+                      <a
+                        href="Portfolio Content (For Website)\GIS & Remote Sensing Projects\Research Projects/GEOG 671 Mini Dissertation - R. Coetzee 30195543.pdf"
+                        target="_blank"
+                        class="text-secondary hover:text-green-400 flex items-center justify-end font-medium transition-colors"
+                      >
+                        <span>View PDF</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div
+              id="tab-content-logo"
+              data-tab-content
+              role="tabpanel"
+              class="hidden"
+            >
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\CC Auto Repairs Logo.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\CC Auto Repairs Logo.png" alt="CC Auto Repairs Logo" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">CC Auto Repairs</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo design for auto repair business.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\CC Auto Repairs Logo.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\Nails_by_Wilma_Logo.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\Nails_by_Wilma_Logo.png" alt="Nails by Wilma Logo" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo design for nail salon.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\Nails_by_Wilma_Logo.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\Albertinia Pavers Logo.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\Albertinia Pavers Logo.png" alt="Albertinia Pavers Logo" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Albertinia Pavers</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo design for manufacturing company.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\Albertinia Pavers Logo.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\Still Green 8.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\Still Green 8.png" alt="Still Green Logo Design 8" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Design 8)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo concept for Still Green.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\Still Green 8.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\Still Green 7.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\Still Green 7.png" alt="Still Green Logo Design 7" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Design 7)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo concept for Still Green.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\Still Green 7.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\Still Green 6.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\Still Green 6.png" alt="Still Green Logo Design 6" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Design 6)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Logo concept for Still Green.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\Still Green 6.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26 (1).jpeg" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26 (1).jpeg" alt="Logo Concept 1" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Logo Concept 1</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Additional logo concept design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26 (1).jpeg" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26.jpeg" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26.jpeg" alt="Logo Concept 2" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Logo Concept 2</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Additional logo concept design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.26.jpeg" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.27.jpeg" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.27.jpeg" alt="Logo Concept 3" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Logo Concept 3</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Additional logo concept design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">Logo Design</span>
+                      <a href="Portfolio Content (For Website)\Logo Designs\WhatsApp Image 2024-04-24 at 10.05.27.jpeg" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            
+            <div
+              id="tab-content-poster"
+              data-tab-content
+              role="tabpanel"
+              class="hidden"
+            >
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Nails_by_Wilma_Poster.jpg" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Nails_by_Wilma_Poster.jpg" alt="Nails by Wilma Poster" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma (Poster)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Promotional poster design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Poster Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Nails_by_Wilma_Poster.jpg" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Nails By Wilma.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Nails By Wilma.png" alt="Nails by Wilma Sticker Design" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma (Sticker)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Sticker design for branding.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Nails By Wilma.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Beetroot.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Beetroot.png" alt="Still Green Beetroot Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Beetroot)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Beetroot.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Chai.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Chai.png" alt="Still Green Chai Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Chai)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Chai.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Pea Shoots.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Pea Shoots.png" alt="Still Green Pea Shoots Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Pea Shoots)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Pea Shoots.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Salad Mix.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Salad Mix.png" alt="Still Green Salad Mix Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Salad Mix)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Salad Mix.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Sunflower.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Sunflower.png" alt="Still Green Sunflower Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Sunflower)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Sunflower.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Broccoli.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Broccoli.png" alt="Still Green Broccoli Sticker" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Still Green (Broccoli)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Product sticker design.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-secondary/20 text-secondary px-3 py-1 rounded-full">Sticker Design</span>
+                      <a href="Portfolio Content (For Website)\Poster & Sticker Designs\Still Green - Broccoli.png" target="_blank" class="text-secondary hover:text-green-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            
+            <div
+              id="tab-content-qr"
+              data-tab-content
+              role="tabpanel"
+              class="hidden"
+            >
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Google_Maps_QR-1024.png" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Google_Maps_QR-1024.png" alt="Nails by Wilma Google Maps QR Code" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma (Maps QR)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Custom QR code for Google Maps location.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">QR Design</span>
+                      <a href="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Google_Maps_QR-1024.png" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-card bg-card-bg rounded-xl overflow-hidden shadow-2xl card-hover border border-gray-700 relative group">
+                  <a href="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Website_QR-1024.jpeg" target="_blank">
+                    <div class="w-full h-64 bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                      <img src="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Website_QR-1024.jpeg" alt="Nails by Wilma Website QR Code" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"/>
+                    </div>
+                  </a>
+                  <div class="p-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Nails by Wilma (Website QR)</h3>
+                    <p class="text-gray-400 mb-4 font-normal">Custom QR code for the business website.</p>
+                    <div class="flex justify-between items-center mt-4">
+                      <span class="text-sm font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">QR Design</span>
+                      <a href="Portfolio Content (For Website)\QR Designs\Nails_by_Wilma_Website_QR-1024.jpeg" target="_blank" class="text-primary hover:text-blue-400 flex items-center font-medium transition-colors">
+                        <span>View Full Image</span>
+                        <i data-feather="external-link" class="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="text-center mt-16 bounce-in" style="animation-delay: 0.4s">
+  <h3
+    class="text-3xl font-semibold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-secondary to-green-500 neon-text-sm"
+  >
+    Future Projects
+  </h3>
+  <p class="text-gray-300 max-w-3xl mx-auto mb-10 font-medium text-lg">
+    Delivering a diverse range of digital solutions across development, data, and comprehensive branding design.
+  </p>
+
+  <div class="grid md:grid-cols-3 gap-8">
+    <div
+      class="project-card bg-card-bg p-8 rounded-xl border border-gray-700 shadow-lg hover:shadow-2xl hover:border-primary transition duration-300 ease-in-out"
+    >
+      <i data-feather="terminal" class="text-primary h-8 w-8 mb-4"></i>
+      <h4 class="text-xl font-bold text-white mb-3">
+        AI Chatbots & Modern Websites
+      </h4>
+      <p class="text-gray-400">
+        Custom AI Chatbots for automation and building fast, Modern Websites using current technologies (and more).
+      </p>
+    </div>
+
+    <div
+      class="project-card bg-card-bg p-8 rounded-xl border border-gray-700 shadow-lg hover:shadow-2xl hover:border-secondary transition duration-300 ease-in-out"
+    >
+      <i data-feather="map" class="text-secondary h-8 w-8 mb-4"></i>
+      <h4 class="text-xl font-bold text-white mb-3">
+        Advanced GIS Maps & Data Visuals
+      </h4>
+      <p class="text-gray-400">
+        Creating detailed, interactive GIS Maps and dynamic data visualization tools for complex analysis.
+      </T>
+    </div>
+
+    <div
+      class="project-card bg-card-bg p-8 rounded-xl border border-gray-700 shadow-lg hover:shadow-2xl hover:border-primary transition duration-300 ease-in-out"
+    >
+      <i data-feather="pen-tool" class="text-primary h-8 w-8 mb-4"></i>
+      <h4 class="text-xl font-bold text-white mb-3">
+        Branding: Logo, QR, & Business Design
+      </h4>
+      <p class="text-gray-400">
+        Professional design for Logo Designs, unique QR Designs, and polished Business Cards (and more).
+      </p>
+    </div>
+  </div>
+</div>
+    </section>
+
+    <hr class="border-gray-800 max-w-7xl mx-auto" />
+
+    <section id="certificates" class="py-20 relative bg-dark-bg bg-opacity-70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16 fade-in">
+          <h2
+            class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 neon-text"
+          >
+            Certificates
+          </h2>
+          <div
+            class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"
+          ></div>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          <div
+            class="certificate-card card-hover bg-card-bg rounded-xl shadow-xl border border-gray-700 bounce-in"
+            style="animation-delay: 0.1s"
+          >
+            <div class="p-6">
+              <div class="flex items-start mb-4">
+                <div class="p-3 bg-primary/10 rounded-full mr-4">
+                  <i data-feather="award" class="text-primary h-6 w-6"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">
+                    BSc Honours Degree
+                  </h3>
+                  <p class="text-sm text-gray-500">Completed 2021</p>
+                </div>
+              </div>
+              <p class="text-gray-400 mb-4 font-normal">
+                Geography and Environmental Sciences from NWU Vaal.
+              </p>
+              <a
+                href="certificates/BSc%20Honours%20Degree%20-%20Ruan%20Coetzee%20.pdf" 
+                target="_blank"
+                class="text-primary hover:text-blue-400 flex items-center text-sm font-semibold transition-colors"
+              >
+                <span>View Certificate</span>
+                <i data-feather="external-link" class="ml-1 h-4 w-4"></i>
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="certificate-card card-hover bg-card-bg rounded-xl shadow-xl border border-gray-700 bounce-in"
+            style="animation-delay: 0.2s"
+          >
+            <div class="p-6">
+              <div class="flex items-start mb-4">
+                <div class="p-3 bg-secondary/10 rounded-full mr-4">
+                  <i data-feather="cpu" class="text-secondary h-6 w-6"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">AI Engineering</h3>
+                  <p class="text-sm text-gray-500">In Progress</p>
+                </div>
+              </div>
+              <p class="text-gray-400 mb-4 font-normal">
+                Currently pursuing advanced studies in AI Engineering.
+              </p>
+              
+              <button
+                id="open-ai-courses-modal"
+                class="inline-flex items-center text-white bg-secondary py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/90 transition duration-300 shadow-md hover:shadow-lg magnetic-button"
+              >
+                View all AI course certificates
+                <i data-feather="list" class="ml-2 h-5 w-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="certificate-card card-hover bg-card-bg rounded-xl shadow-xl border border-gray-700 bounce-in"
+            style="animation-delay: 0.3s"
+          >
+            <div class="p-6">
+              <div class="flex items-start mb-4">
+                <div class="p-3 bg-secondary/10 rounded-full mr-4">
+                  <i data-feather="code" class="text-secondary h-6 w-6"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">
+                    Web Development & SQL
+                  </h3>
+                  <p class="text-sm text-gray-500">Completed Courses</p>
+                </div>
+              </div>
+              <p class="text-gray-400 mb-4 font-normal">
+                Foundational and advanced training in web technologies and database management.
+              </p>
+              
+              <button
+                id="open-web-sql-courses-modal"
+                class="inline-flex items-center text-white bg-secondary py-2 px-6 rounded-full text-lg font-semibold hover:bg-secondary/90 transition duration-300 shadow-md hover:shadow-lg magnetic-button"
+              >
+                View all Dev/SQL certificates
+                <i data-feather="database" class="ml-2 h-5 w-5"></i>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+    </section>
+
+    <hr class="border-gray-800 max-w-7xl mx-auto" />
+
+    <!-- ✅ CONTACT SECTION -->
+<section id="contact" class="py-20 relative bg-dark-bg bg-opacity-90">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 neon-text">
+        Get In Touch
+      </h2>
+      <div class="w-20 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
+      <p class="mt-4 text-gray-400 text-lg max-w-2xl mx-auto">
+        Have a question or want to work together? Fill out the form below and I’ll get back to you soon.
+      </p>
+    </div>
+
+    <form
+      id="contact-form"
+      action="https://formspree.io/f/mqaywnrl"
+      method="POST"
+      class="bg-card-bg border border-gray-700 rounded-xl shadow-2xl p-8 space-y-6 max-w-2xl mx-auto"
+    >
+      <!-- Name -->
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Name</label>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          placeholder="Enter your full name"
+          required
+          class="w-full px-4 py-3 rounded-lg bg-dark-bg border border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 transition outline-none"
+        />
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Enter your email address"
+          required
+          class="w-full px-4 py-3 rounded-lg bg-dark-bg border border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 transition outline-none"
+        />
+      </div>
+
+      <!-- Phone (optional) -->
+      <div>
+        <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone (optional)</label>
+        <input
+          type="tel"
+          name="phone"
+          id="phone"
+          placeholder="Enter your phone number (optional)"
+          pattern="[0-9+\\-\\s()]*"
+          class="w-full px-4 py-3 rounded-lg bg-dark-bg border border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 transition outline-none"
+        />
+      </div>
+
+      <!-- Message -->
+      <div>
+        <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+        <textarea
+          name="message"
+          id="message"
+          rows="5"
+          placeholder="Write your message here..."
+          required
+          class="w-full px-4 py-3 rounded-lg bg-dark-bg border border-gray-700 focus:border-primary focus:ring-2 focus:ring-primary/50 transition outline-none"
+        ></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-secondary text-white font-semibold py-3 rounded-lg transition-all duration-300 magnetic-button relative overflow-hidden"
+      >
+        Send Message
+      </button>
+
+      <!-- Success Message -->
+      <p id="form-status" class="text-center text-sm font-medium text-green-400 hidden">
+        ✅ Message Sent!
+      </p>
+    </form>
+  </div>
+</section>
+
+    <!-- ✅ END CONTACT SECTION -->
+
+    <footer class="bg-dark-bg border-t border-gray-800 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex justify-center space-x-6 mb-4">
+          <a
+            href="https://github.com/Ruan1993"
+            target="_blank"
+            class="text-gray-400 hover:text-primary transition-colors duration-300 magnetic-button"
+          >
+            <i data-feather="github" class="w-6 h-6"></i>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/ruan-coetzee-43a925a1"
+            target="_blank"
+            class="text-gray-400 hover:text-primary transition-colors duration-300 magnetic-button"
+          >
+            <i data-feather="linkedin" class="w-6 h-6"></i>
+          </a>
+          <a
+            href="https://www.facebook.com/rcoetzee2/"
+            target="_blank"
+            class="text-gray-400 hover:text-primary transition-colors duration-300 magnetic-button"
+          >
+            <i data-feather="facebook" class="w-6 h-6"></i>
+          </a>
+        </div>
+        <p class="text-gray-500 text-sm">
+          &copy; 2025 Ruan Coetzee. All rights reserved. | Built with HTML, CSS,
+          JavaScript, Tailwind, and Vanta.js
+        </p>
+      </div>
+    </footer>
+    
+    <div 
+        id="ai-courses-modal-overlay" 
+        class="hidden fixed inset-0 bg-dark-bg bg-opacity-80 backdrop-blur-sm z-[100] items-center justify-center transition-opacity duration-300 opacity-0"
+    >
+        <div id="ai-courses-modal-content" class="bg-card-bg p-8 rounded-xl shadow-2xl border border-primary/50 w-full max-w-lg mx-4 transform transition-transform duration-300 scale-95">
+            
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+                <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">
+                    AI Engineering Course Certificates
+                </h2>
+                <button id="close-ai-courses-modal" class="text-gray-400 hover:text-primary transition-colors focus:outline-none">
+                    <i data-feather="x" class="h-6 w-6"></i>
+                </button>
+            </div>
+
+            <p class="text-gray-400 mb-6 font-medium">Click any course to view the certificate PDF (opens in new tab).</p>
+            
+            <div class="space-y-3" id="ai-courses-list">
+                <a href="certificates\AI Engineering Certificates/Introduction%20to%20AI%20-%20Ruan%20Coetzee%20(Coursera%20JZZVO26QGVZ3).pdf" target="_blank" class="block text-primary hover:text-blue-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">1. Introduction to AI</a>
+                <a href="certificates\AI Engineering Certificates/Introduction%20&%20Applications%20-%20Ruan%20Coetzee.pdf" target="_blank" class="block text-primary hover:text-blue-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">2. Generative AI: Intro & Applications</a>
+                <a href="certificates\AI Engineering Certificates/Prompt%20Engineering%20Basics%20-%20Ruan%20Coetzee.pdf" target="_blank" class="block text-primary hover:text-blue-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">3. Prompt Engineering Basics</a>
+                <a href="certificates\AI Engineering Certificates/Python%20for%20Data%20Science,%20AI%20&%20Development%20-%20Ruan%20Coetzee.pdf" target="_blank" class="block text-primary hover:text-blue-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">4. Python for Data Science, AI & Development</a>
+                <a href="certificates\AI Engineering Certificates/Developing%20AI%20Applications%20with%20Python%20and%20Flask%20-%20Ruan%20Coetzee%20(Coursera).pdf" target="_blank" class="block text-primary hover:text-blue-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">5. Python & Flask App Development</a>
+            </div>
+        </div>
+    </div>
+    
+    <div 
+        id="web-sql-courses-modal-overlay" 
+        class="hidden fixed inset-0 bg-dark-bg bg-opacity-80 backdrop-blur-sm z-[100] items-center justify-center transition-opacity duration-300 opacity-0"
+    >
+        <div id="web-sql-courses-modal-content" class="bg-card-bg p-8 rounded-xl shadow-2xl border border-secondary/50 w-full max-w-lg mx-4 transform transition-transform duration-300 scale-95">
+            
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+                <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-secondary to-green-400">
+                    Web Development & SQL Certificates
+                </h2>
+                <button id="close-web-sql-courses-modal" class="text-gray-400 hover:text-secondary transition-colors focus:outline-none">
+                    <i data-feather="x" class="h-6 w-6"></i>
+                </button>
+            </div>
+
+            <p class="text-gray-400 mb-6 font-medium">Click any course to view the certificate PDF (opens in new tab).</p>
+            
+            <div class="space-y-3" id="web-sql-courses-list">
+                <a href="certificates/Web Development Certificates/HTML%20and%20CSS%20for%20Beginners%20-%20Build%20a%20Website%20&%20Launch%20Online%20(Ruan%20Coetzee).pdf" target="_blank" class="block text-secondary hover:text-green-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">1. HTML and CSS for Beginners</a>
+                <a href="certificates/Web Development Certificates/Ruan%20Coetzee%20-%20Complete%20SQL%20Bootcamp%202022%20Certificate.pdf" target="_blank" class="block text-secondary hover:text-green-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">2. Complete SQL Bootcamp 2022</a>
+                <a href="certificates/Web%20Development%20Certificates/Ruan%20Coetzee_s%20Mimo%20SQL%20certificate.pdf" target="_blank" class="block text-secondary hover:text-green-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">3. Mimo SQL Certificate</a>
+                <a href="certificates/Web%20Development%20Certificates/Ruan%20Coetzee_s%20Web%20Development-Mimo-certificate.pdf" target="_blank" class="block text-secondary hover:text-green-400 font-semibold p-2 rounded-lg hover:bg-gray-800 transition-all">4. Mimo Web Development Certificate</a>
+            </div>
+        </div>
+    </div>
+
+    <button
+      id="back-to-top-btn"
+      class="p-4 rounded-full bg-primary/20 border border-primary text-primary hover:bg-primary hover:text-white backdrop-blur-sm shadow-xl transition-all duration-300"
+      aria-label="Back to top"
+    >
+      <i data-feather="arrow-up" class="w-6 h-6"></i>
+    </button>
+
+    <script src="script.js"></script>
+  </body>
+</html>
