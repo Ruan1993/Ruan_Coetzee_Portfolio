@@ -1,5 +1,5 @@
 // netlify/chat-proxy.js
-import { GoogleGenAI } from "@google/genai";
+const { GoogleGenAI } = require("@google/genai");
 
 // The GOOGLE_GEMINI_API_KEY environment variable is injected here securely
 const ai = new GoogleGenAI(process.env.GOOGLE_GEMINI_API_KEY); 
