@@ -61,5 +61,5 @@ async function handler(event, context) {
     }
 }
 
-// 3. CommonJS module export
+// 3. CommonJS module export: This is the fix for "No functions deployed"
 module.exports = { handler };
