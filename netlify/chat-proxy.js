@@ -1,10 +1,13 @@
 // netlify/chat-proxy.js
+
+// 1. CommonJS require for dependency
 const { GoogleGenAI } = require("@google/genai");
 
 // The GOOGLE_GEMINI_API_KEY environment variable is injected here securely
 const ai = new GoogleGenAI(process.env.GOOGLE_GEMINI_API_KEY); 
 
-export async function handler(event, context) {
+// 2. Function definition without the 'export' keyword
+async function handler(event, context) {
     if (event.httpMethod !== "POST") {
         return { statusCode: 405, body: "Method Not Allowed" };
     }
@@ -57,3 +60,6 @@ export async function handler(event, context) {
         };
     }
 }
+
+// 3. CommonJS module export
+module.exports = { handler };
