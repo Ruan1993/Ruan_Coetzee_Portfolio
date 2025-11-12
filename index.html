@@ -22,6 +22,11 @@
               secondary: "#10B981", // Emerald-500
               "dark-bg": "#0A0A0A", // Near-black for main background
               "card-bg": "#18181B", // Zinc-800 for cards
+              
+              /* --- CHATBOT COLORS (ADDED) --- */
+              'primary-blue': '#1c74d0',
+              'ai-bubble': '#f1f5f9', /* slate-100 */
+              'user-bubble': '#bfdbfe', /* blue-200 */
             },
           },
         },
@@ -1534,8 +1539,7 @@
 
     <hr class="border-gray-800 max-w-7xl mx-auto" />
 
-    <!-- ✅ CONTACT SECTION -->
-<section id="contact" class="py-20 relative bg-dark-bg bg-opacity-90">
+    <section id="contact" class="py-20 relative bg-dark-bg bg-opacity-90">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
       <h2 class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 neon-text">
@@ -1554,7 +1558,6 @@
       class="bg-card-bg border border-gray-700 rounded-xl shadow-2xl p-8 space-y-6 max-w-2xl mx-auto"
     >
     <input type="hidden" name="access_key" value="b7b6bc72-0e0d-475d-8766-e8d16a4f6005">
-      <!-- Name -->
       <div>
         <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Name</label>
         <input
@@ -1567,7 +1570,6 @@
         />
       </div>
 
-      <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
         <input
@@ -1580,7 +1582,6 @@
         />
       </div>
 
-      <!-- Phone (optional) -->
       <div>
         <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone (optional)</label>
         <input
@@ -1593,7 +1594,6 @@
         />
       </div>
 
-      <!-- Message -->
       <div>
         <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Message</label>
         <textarea
@@ -1606,7 +1606,6 @@
         ></textarea>
       </div>
 
-      <!-- Submit Button -->
       <button
         type="submit"
         class="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-secondary text-white font-semibold py-3 rounded-lg transition-all duration-300 magnetic-button relative overflow-hidden"
@@ -1614,15 +1613,12 @@
         Send Message
       </button>
 
-      <!-- Success Message -->
       <p id="form-status" class="text-center text-sm font-medium text-green-400 hidden">
         ✅ Message Sent!
       </p>
     </form>
   </div>
 </section>
-
-    <!-- ✅ END CONTACT SECTION -->
 
     <footer class="bg-dark-bg border-t border-gray-800 py-8">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -1716,7 +1712,97 @@
     >
       <i data-feather="arrow-up" class="w-6 h-6"></i>
     </button>
-
+    
     <script src="script.js"></script>
-  </body>
+
+    <div id="chatbot-widget-container">
+        <button id="chat-toggle-button" onclick="toggleChatWindow()" 
+                class="fixed bottom-24 right-6 z-50 bg-primary-blue text-white p-3 rounded-full shadow-2xl hover:bg-blue-700 transition duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10">
+                <rect x="5" y="5" width="14" height="14" rx="3" ry="3"/>
+                <circle cx="9" cy="9" r="1" fill="currentColor"/>
+                <circle cx="15" cy="9" r="1" fill="currentColor"/>
+                <line x1="10" y1="15" x2="14" y2="15"/>
+                <path d="M12 5V3"/>
+                <path d="M10 3h4"/>
+            </svg>
+        </button>
+    
+        <div id="main-chat-window" class="fixed bottom-24 right-4 z-40 w-[350px] max-w-[90vw] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col h-[70vh] min-h-[400px] max-h-[600px] transform translate-y-full opacity-0 transition-all duration-300">
+            
+            <header class="p-4 bg-primary-blue text-white shadow-md flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">Bloop</h1>
+                    <div class="text-sm opacity-80 ml-4">Website Assistant</div>
+                </div>
+                <button id="chat-close-button" onclick="toggleChatWindow()" class="p-1 rounded-full hover:bg-blue-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </header>
+
+            <div id="chat-container" class="chat-container flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <div class="flex justify-start">
+                    <div class="max-w-xs md:max-w-md p-3 rounded-lg bg-ai-bubble text-gray-800 shadow-sm">
+                        <p class="font-semibold text-sm mb-1 text-primary-blue">Bloop</p>
+                        <p class="text-sm">
+                            Hello! I am Bloop, an AI assistant trained on this website's content. Ask me anything about Ruan's skills, projects, or background.
+                        </p>
+                    </div>
+                </div>
+                <div id="loading-indicator" class="hidden flex justify-start">
+                    <div class="p-3 rounded-lg bg-ai-bubble shadow-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-primary-blue rounded-full animate-bounce delay-75"></div>
+                            <div class="w-2 h-2 bg-primary-blue rounded-full animate-bounce delay-150"></div>
+                            <div class="w-2 h-2 bg-primary-blue rounded-full animate-bounce delay-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="training-area" class="hidden">
+                <textarea id="website-content-input" rows="6">
+Ruan Coetzee is a Front-End Developer, Aspiring AI Engineer, and Geospatial Analyst.
+He builds immersive digital experiences that combine cutting-edge technology with thoughtful design.
+
+Contact:
+You can get in touch via the contact form on the website.
+
+Skills:
+- Web Development: HTML, CSS, JavaScript, Tailwind, Responsive Design.
+- AI & Data: Python, Prompt Engineering, Flask, Machine Learning, Data Analysis.
+- GIS & Mapping: ArcGIS, QGIS, Digitizing, Global Mapper, Google Earth Engine, IGI Plan, IX Plan, Remote Sensing.
+- Editing & Writing: Research, Spreadsheets, Logo Design, Web Design, QR Design, Poster Design, Technical Writing, Copy Editing.
+
+Featured Projects:
+- Albertinia Pavers: Professional website for a manufacturing company.
+- Nails by Wilma: An elegant website for a nail salon.
+- CC Auto Repairs: A professional website for an auto repair shop.
+- De Brakke Guest House: A comprehensive website for a guesthouse.
+
+Certificates & Education:
+- BSc Honours Degree in Geography and Environmental Sciences (2021).
+- AI Engineering (In Progress): Courses include Intro to AI, Generative AI, Prompt Engineering, Python for Data Science, and Python & Flask App Development.
+- Web/SQL Certificates: Courses include HTML/CSS for Beginners, Complete SQL Bootcamp, Mimo SQL, and Mimo Web Development.
+</textarea>
+            </div>
+
+            <div class="p-4 border-t border-gray-200 flex space-x-3 bg-white">
+                <input type="text" id="user-input" placeholder="Type your message..."
+                       class="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-blue transition duration-150"
+                       onkeydown="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" id="send-button"
+                        class="bg-primary-blue text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+                        <path d="m22 2-7 20-4-9-9-4Z"/>
+                        <path d="M22 2 11 13"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    </body>
 </html>

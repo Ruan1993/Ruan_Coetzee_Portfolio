@@ -338,3 +338,243 @@ if (contactForm) {
     });
 }
 });
+
+// ======================================================
+// === START: CHATBOT JAVASCRIPT (ADDED) ===
+// ======================================================
+
+// --- API & State Setup ---
+const API_KEY = "YOUR_GOOGLE_AI_API_KEY"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
+const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+
+// --- !!! SECURITY WARNING !!! ---
+// Placing your API_KEY directly in client-side JavaScript is insecure.
+// Anyone visiting your site can view the source code and steal your key.
+// For a real-world application, this API call should be made from a secure backend server.
+// For personal or test projects, you MUST restrict your API key in the Google Cloud
+// Console to only work on your specific website domain (which you have already done).
+
+let websiteContent; // Will be populated on init
+let chatContainer; // Will be assigned in init
+let userInput; // Will be assigned in init
+let sendButton; // Will be assigned in init
+let loadingIndicator; // Will be assigned in init
+let mainChatWindow; // Will be assigned in init
+let isChatOpen = false;
+
+// --- Utility Functions ---
+
+function toggleChatWindow() {
+    if (!mainChatWindow) return; // Safety check
+    isChatOpen = !isChatOpen;
+    if (isChatOpen) {
+        mainChatWindow.classList.remove('translate-y-full', 'opacity-0');
+        mainChatWindow.classList.add('translate-y-0', 'opacity-100');
+        if (userInput) userInput.focus();
+    } else {
+        mainChatWindow.classList.remove('translate-y-0', 'opacity-100');
+        mainChatWindow.classList.add('translate-y-full', 'opacity-0');
+    }
+}
+
+function createMessageElement(text, sender) {
+    const isUser = sender === 'user';
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = `max-w-xs md:max-w-md p-3 rounded-lg shadow-md text-sm ${
+        isUser ? 'bg-user-bubble text-gray-900 rounded-br-none' : 'bg-ai-bubble text-gray-800 rounded-tl-none'
+    }`;
+    
+    if (!isUser) {
+         const senderLabel = document.createElement('p');
+         senderLabel.className = 'font-semibold text-xs mb-1 text-primary-blue';
+         senderLabel.textContent = 'Bloop'; // Updated name
+         bubble.appendChild(senderLabel);
+    }
+
+    const content = document.createElement('p');
+    // Sanitize text to prevent HTML injection - a simple textContent is safest
+    content.textContent = text; 
+    bubble.appendChild(content);
+
+    messageDiv.appendChild(bubble);
+    return messageDiv;
+}
+
+function appendMessage(text, sender) {
+    if (!chatContainer) return;
+    const messageElement = createMessageElement(text, sender);
+    chatContainer.appendChild(messageElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+}
+
+function setChatState(isLoading) {
+    if (sendButton) sendButton.disabled = isLoading;
+    if (userInput) userInput.disabled = isLoading;
+    if (loadingIndicator) loadingIndicator.classList.toggle('hidden', !isLoading);
+    if (isLoading && chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+// --- Core Chat Functionality ---
+
+// Retrieve the training content from the textarea
+function initializeChatbot() {
+    // Assign elements
+    chatContainer = document.getElementById('chat-container');
+    userInput = document.getElementById('user-input');
+    sendButton = document.getElementById('send-button');
+    loadingIndicator = document.getElementById('loading-indicator');
+    mainChatWindow = document.getElementById('main-chat-window');
+    
+    const contentInput = document.getElementById('website-content-input');
+    if (contentInput) {
+        websiteContent = contentInput.value;
+    } else {
+        console.error("Chatbot training textarea not found!");
+        websiteContent = ""; // Set to empty to prevent errors
+    }
+    
+    const trainingArea = document.getElementById('training-area');
+    if (trainingArea) {
+        trainingArea.style.display = 'none'; // Hide the training area completely
+    }
+    
+    // Add event listeners for chatbot elements
+    if (sendButton) {
+        sendButton.onclick = sendMessage;
+    }
+    if (userInput) {
+        userInput.onkeydown = (event) => {
+            if (event.key === 'Enter' && !sendButton.disabled) {
+                sendMessage();
+            }
+        };
+    }
+    
+    // Assign the toggle button click
+    const toggleButton = document.getElementById('chat-toggle-button');
+    if (toggleButton) {
+        toggleButton.onclick = toggleChatWindow;
+    }
+}
+
+async function sendMessage() {
+    const query = userInput.value.trim();
+    if (!query || (websiteContent && websiteContent.trim() === "")) {
+        if (websiteContent && websiteContent.trim() === "") {
+            appendMessage("I haven't been trained yet. Please add content to the training area.", 'ai');
+        }
+        return;
+    }
+
+    // 1. Display user message and clear input
+    appendMessage(query, 'user');
+    userInput.value = '';
+    
+    // 2. Set loading state
+    setChatState(true);
+
+    // 3. Construct the RAG-style prompt
+    const systemPrompt = `
+        You are Bloop, a helpful and concise AI assistant.
+        Your primary goal is to answer user questions using ONLY the content provided in the 'CONTEXT' section below.
+        Do not use any external knowledge.
+        If the CONTEXT does not contain the necessary information to answer the question, you MUST respond only with:
+        "I'm sorry, I couldn't find information about that specific topic in the provided website content. Please try rephrasing your question or check the website directly."
+        
+        Keep your answers brief, friendly, and directly related to the user's query.
+
+        CONTEXT:
+        ---
+        ${websiteContent}
+        ---
+    `;
+    
+    // 4. Prepare API payload
+    const payload = {
+        contents: [
+            {
+                "role": "user",
+                "parts": [
+                    { "text": systemPrompt },
+                    { "text": "Question: " + query }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 250
+        }
+    };
+
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+
+    while (retryCount < MAX_RETRIES) {
+        try {
+            if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY") {
+                throw new Error("API_KEY is not set. Please add your Google AI API key to the script.");
+            }
+        
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content?.parts?.[0]?.text) {
+                const aiResponseText = result.candidates[0].content.parts[0].text;
+                appendMessage(aiResponseText, 'ai');
+                setChatState(false);
+                return; // Success, exit function
+            } else {
+                // Check for safety blocks or other API responses
+                if (result.promptFeedback) {
+                    console.error("Prompt was blocked:", result.promptFeedback);
+                    throw new Error("The request was blocked by the API for safety reasons.");
+                }
+                throw new Error("Invalid response structure from API.");
+            }
+        } catch (error) {
+            console.error("Error during API call:", error);
+            retryCount++;
+            if (retryCount >= MAX_RETRIES) {
+                // Failed after max retries
+                let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
+                if (error.message.includes("API_KEY")) {
+                    friendlyError = "The chatbot is not configured correctly. (Missing API Key)";
+                } else if (error.message.includes("400")) {
+                    friendlyError = "There was an error with the request. (Bad Request)";
+                }
+                appendMessage(friendlyError, 'ai');
+                setChatState(false);
+                return;
+            }
+            // Optional: Add exponential backoff delay
+            const delay = Math.pow(2, retryCount) * 1000;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+}
+
+// Initialize the chatbot AFTER the main DOMContentLoaded has finished
+// We wrap it in its own event listener to be safe.
+document.addEventListener('DOMContentLoaded', () => {
+    initializeChatbot();
+});
+
+// ======================================================
+// === END: CHATBOT JAVASCRIPT ===
+// ======================================================
