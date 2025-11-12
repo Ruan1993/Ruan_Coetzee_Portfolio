@@ -220,21 +220,21 @@ input[type="button"] {
 /* --- Back to Top Button Styles --- */
 #back-to-top-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 20px; /* Aligns with new bottom-center placement */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%) scale(0.8); /* Center and shrink for animation start */
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
   /* Use a smooth spring transition for appearance */
   transition: all 0.5s cubic-bezier(0.2, 0.6, 0.3, 1.2);
-  transform: scale(0.8); /* Start slightly shrunk */
   cursor: none !important;
 }
 
 #back-to-top-btn.show {
   opacity: 0.9;
   visibility: visible;
-  transform: scale(1);
+  transform: translateX(-50%) scale(1); /* Maintain centering during display */
 }
 
 /* ------------------------------------------------------------------ */

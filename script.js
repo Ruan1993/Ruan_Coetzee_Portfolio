@@ -344,7 +344,7 @@ if (contactForm) {
 // ======================================================
 
 // --- API & State Setup ---
-const API_KEY = "YOUR_GOOGLE_AI_API_KEY"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
+const API_KEY = "AIzaSyDLFNI9fL75HDtl3IZ0-0ibEqXHPvY-Waw"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
 const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
