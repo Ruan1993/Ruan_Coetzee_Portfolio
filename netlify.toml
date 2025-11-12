@@ -1,3 +1,2 @@
 [functions]
-  external_node_modules = ["@google/genai"]
-  node_bundler = "esbuild"
+node_bundler = "esbuild"
