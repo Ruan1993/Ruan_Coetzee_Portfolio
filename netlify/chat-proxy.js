@@ -13,6 +13,7 @@ async function handler(event, context) {
     }
 
     try {
+        // We know this part is correctly reading the client data
         const { query, websiteContent } = JSON.parse(event.body);
 
         const systemPrompt = `
@@ -61,5 +62,5 @@ async function handler(event, context) {
     }
 }
 
-// 3. CommonJS module export: This is the fix for "No functions deployed"
+// 3. CRITICAL FIX: Explicit CommonJS export
 module.exports = { handler };
