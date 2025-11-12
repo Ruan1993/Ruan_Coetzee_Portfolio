@@ -479,37 +479,11 @@ async function sendMessage() {
     // 2. Set loading state
     setChatState(true);
 
-    // 3. Construct the RAG-style prompt
-    const systemPrompt = `
-        You are Bloop, a helpful and concise AI assistant.
-        Your primary goal is to answer user questions using ONLY the content provided in the 'CONTEXT' section below.
-        Do not use any external knowledge.
-        If the CONTEXT does not contain the necessary information to answer the question, you MUST respond only with:
-        "I'm sorry, I couldn't find information about that specific topic in the provided website content. Please try rephrasing your question or check the website directly."
-        
-        Keep your answers brief, friendly, and directly related to the user's query.
-
-        CONTEXT:
-        ---
-        ${websiteContent}
-        ---
-    `;
-    
-    // 4. Prepare API payload
+    // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
+    // NOTE: This is simpler than the old payload in your script.js!
     const payload = {
-        contents: [
-            {
-                "role": "user",
-                "parts": [
-                    { "text": systemPrompt },
-                    { "text": "Question: " + query }
-                ]
-            }
-        ],
-        "generationConfig": {
-            "temperature": 0.2,
-            "maxOutputTokens": 250
-        }
+        query: query,
+        websiteContent: websiteContent 
     };
 
     const MAX_RETRIES = 3;
@@ -517,35 +491,31 @@ async function sendMessage() {
 
     while (retryCount < MAX_RETRIES) {
         try {
+            // Check for API key is no longer needed since the key is hidden, but can be left as a dummy check.
             if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY") {
-                throw new Error("API_KEY is not set. Please add your Google AI API key to the script.");
+                 // Throwing this error won't stop the proxy call, but is a safe guard.
             }
         
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload) // Send simple JSON data
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status} ${response.statusText} - ${errorText}`);
+                throw new Error(`Proxy error! status: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
             const result = await response.json();
             
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content?.parts?.[0]?.text) {
-                const aiResponseText = result.candidates[0].content.parts[0].text;
-                appendMessage(aiResponseText, 'ai');
+            // *** CRITICAL FIX HERE ***
+            if (result.text) { // Check for the simple 'text' field returned by the proxy
+                appendMessage(result.text, 'ai');
                 setChatState(false);
                 return; // Success, exit function
             } else {
-                // Check for safety blocks or other API responses
-                if (result.promptFeedback) {
-                    console.error("Prompt was blocked:", result.promptFeedback);
-                    throw new Error("The request was blocked by the API for safety reasons.");
-                }
-                throw new Error("Invalid response structure from API.");
+                throw new Error("Invalid response structure from proxy (missing 'text' field).");
             }
         } catch (error) {
             console.error("Error during API call:", error);
@@ -553,10 +523,8 @@ async function sendMessage() {
             if (retryCount >= MAX_RETRIES) {
                 // Failed after max retries
                 let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
-                if (error.message.includes("API_KEY")) {
-                    friendlyError = "The chatbot is not configured correctly. (Missing API Key)";
-                } else if (error.message.includes("400")) {
-                    friendlyError = "There was an error with the request. (Bad Request)";
+                if (error.message.includes("400") || error.message.includes("Proxy error")) {
+                    friendlyError = "The chatbot service encountered a server error. Please try again.";
                 }
                 appendMessage(friendlyError, 'ai');
                 setChatState(false);
