@@ -220,21 +220,21 @@ input[type="button"] {
 /* --- Back to Top Button Styles --- */
 #back-to-top-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 20px; /* Aligns with new bottom-center placement */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%) scale(0.8); /* Center and shrink for animation start */
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
   /* Use a smooth spring transition for appearance */
   transition: all 0.5s cubic-bezier(0.2, 0.6, 0.3, 1.2);
-  transform: scale(0.8); /* Start slightly shrunk */
   cursor: none !important;
 }
 
 #back-to-top-btn.show {
   opacity: 0.9;
   visibility: visible;
-  transform: scale(1);
+  transform: translateX(-50%) scale(1); /* Maintain centering during display */
 }
 
 /* ------------------------------------------------------------------ */
@@ -331,3 +331,33 @@ input[type="button"] {
     transform: translateY(0);
   }
 }
+
+/* ====================================================== */
+/* === START: CHATBOT CSS (ADDED) === */
+/* ====================================================== */
+/* Custom scrollbar styling for the chat window */
+.chat-container::-webkit-scrollbar {
+    width: 8px;
+}
+.chat-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; /* slate-300 */
+    border-radius: 4px;
+}
+.chat-container::-webkit-scrollbar-track {
+    background-color: #f1f5f9; /* slate-100 */
+}
+/* Base styles to prevent inheriting from host page */
+#chatbot-widget-container, 
+#chatbot-widget-container div, 
+#chatbot-widget-container button, 
+#chatbot-widget-container h1, 
+#chatbot-widget-container p, 
+#chatbot-widget-container input {
+    font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 16px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+/* ====================================================== */
+/* === END: CHATBOT CSS === */
+/* ====================================================== */
