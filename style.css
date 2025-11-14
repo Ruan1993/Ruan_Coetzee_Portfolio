@@ -1,0 +1,374 @@
+/* style.css */
+
+/* Modern Typography & Base Styling */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+body {
+  font-family: "Inter", sans-serif;
+  color: #f8f9fa;
+  /* Tailwind CSS colors must be referenced via classes, but we set a fallback dark background */
+  background-color: #0a0a0a; 
+  /* NEW: Ensure default cursor is hidden everywhere */
+  cursor: none !important;
+}
+
+/* Vanta Background */
+.vanta-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: #0a0a0a;
+  /* MODIFICATION: Make the Vanta background more transparent */
+  opacity: 0.7; 
+}
+
+/* Neon text effects */
+.neon-text {
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.6),
+    0 0 15px rgba(59, 130, 246, 0.4);
+  animation: neon-pulse 3s infinite alternate;
+  font-weight: 800;
+}
+
+.neon-text-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.7),
+    0 0 20px rgba(255, 255, 255, 0.5);
+  font-weight: 900;
+}
+
+.neon-text-sm {
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5),
+        0 0 10px rgba(59, 130, 246, 0.3);
+    font-weight: 700;
+}
+
+/* Enhanced Interactive Elements Base */
+button,
+a.magnetic-button,
+.card-hover,
+/* Ensure all interactive elements do not show the default pointer */
+a,
+input[type="submit"],
+input[type="button"] { 
+  cursor: none !important; /* Force custom cursor on interactive elements */
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.2, 0.6, 0.3, 1.2),
+    box-shadow 0.4s ease, background 0.4s ease;
+  will-change: transform, box-shadow;
+}
+
+/* Universal Pop-out Effect for Cards/Blocks */
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.03) rotateX(1deg);
+  box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3),
+    0 0 0 3px rgba(59, 130, 246, 0.5);
+  z-index: 10;
+}
+
+/* Navigation Link Hover Effect */
+.nav-link:hover {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+  transform: translateY(-3px);
+  color: #ffffff;
+}
+
+/* Ripple effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Keyframe Updates */
+@keyframes neon-pulse {
+  from {
+    text-shadow: 0 0 6px rgba(59, 130, 246, 0.7),
+      0 0 12px rgba(59, 130, 246, 0.5);
+  }
+  to {
+    text-shadow: 0 0 10px rgba(96, 165, 250, 1),
+      0 0 20px rgba(96, 165, 250, 0.8);
+  }
+}
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(40px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Float Animation for Image */
+.float-animate {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0); }
+}
+
+/* --- UPDATED: Custom Cursor Dot (Center) --- */
+/* The primary pointer: a high-contrast white ring */
+#custom-cursor-dot {
+  position: fixed;
+  width: 16px; 
+  height: 16px; 
+  background-color: transparent; /* Transparent center */
+  border: 2px solid #ffffff; /* High-contrast white ring for clear visibility */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: screen; 
+  transition: transform 0.1s ease-out, background-color 0.2s ease, border-color 0.2s ease, width 0.2s ease, height 0.2s ease;
+  /* Added a stronger white center pulse for better focus */
+  box-shadow: 0 0 10px #ffffff, 0 0 20px rgba(59, 130, 246, 0.8); 
+}
+
+/* State when hovering over interactive elements (Clear Selection Indicator) */
+#custom-cursor-dot.active {
+  width: 24px; /* Larger dot on hover */
+  height: 24px;
+  transform: scale(1.0); /* Reset scale */
+  background-color: #3B82F6; /* Solid primary color dot - clear selection indicator */
+  border: 2px solid #3B82F6; 
+  box-shadow: 0 0 10px #3B82F6, 0 0 25px #3B82F6; /* Stronger blue glow */
+}
+
+/* --- UPDATED: Cursor Trail (Leaking Liquid Effect) --- */
+#cursor-trail {
+  position: fixed; 
+  width: 50px; /* REDUCED SIZE for a smaller trail */
+  height: 50px; 
+  background: transparent; 
+  border-radius: 50%;
+  opacity: 0.7; /* Increased base opacity slightly */
+  filter: blur(5px); /* NEW: Added slight blur back for 'fluid' look */
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%); 
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease; 
+  animation: liquid-pulse 2.5s infinite ease-in-out alternate; /* Renamed animation and adjusted speed */
+  
+  /* NEW SHADOW: Softer, overlapping shadows for a flowing look */
+  box-shadow: 
+    0 0 8px rgba(59, 130, 246, 1.0), /* Bright blue core */
+    0 0 15px rgba(96, 165, 250, 0.8), /* Lighter blue wash */
+    0 0 25px rgba(30, 64, 175, 0.5); /* Deep blue outer bleed */
+}
+
+/* NEW: Liquid Pulse Animation */
+@keyframes liquid-pulse {
+    0% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(0.9);
+        box-shadow: 
+            0 0 5px rgba(96, 165, 250, 1.0), 
+            0 0 15px rgba(59, 130, 246, 0.6);
+    }
+    50% {
+        opacity: 0.9; 
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 
+            0 0 12px #ffffff, /* White light center */
+            0 0 30px rgba(96, 165, 250, 1.0);
+    }
+    100% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(0.95);
+        box-shadow: 
+            0 0 8px rgba(96, 165, 250, 0.8),
+            0 0 20px rgba(59, 130, 246, 0.6);
+    }
+}
+
+
+/* NEW: Particle styles for the click burst effect (smaller, sharper) */
+.click-particle {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 1;
+    transform: scale(1);
+    transition: none; 
+    box-shadow: 0 0 3px #fff, 0 0 8px #3B82F6; 
+}
+
+
+/* --- Back to Top Button Styles --- */
+#back-to-top-btn {
+  position: fixed;
+  bottom: 20px; /* Aligns with new bottom-center placement */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%) scale(0.8); /* Center and shrink for animation start */
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  /* Use a smooth spring transition for appearance */
+  transition: all 0.5s cubic-bezier(0.2, 0.6, 0.3, 1.2);
+  cursor: none !important;
+}
+
+#back-to-top-btn.show {
+  opacity: 0.9;
+  visibility: visible;
+  transform: translateX(-50%) scale(1); /* Maintain centering during display */
+}
+
+/* ------------------------------------------------------------------ */
+/* --- NEW: Project Tab Styles --- */
+/* ------------------------------------------------------------------ */
+.tab-button {
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  /* Remove default button appearance */
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+
+.tab-button.active {
+  /* A clear active state */
+  border-color: #3B82F6; /* primary color */
+  color: #3B82F6;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+/* Hide tab content by default */
+[data-tab-content] {
+  display: none;
+}
+
+/* Show active tab content and apply animation */
+[data-tab-content].active {
+  display: block;
+  /* Use the existing bounceIn animation for a cool effect */
+  animation: bounceIn 0.5s ease-out;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* --- Mobile View Adjustments (max-width: 767px) --- */
+/* ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  /* 1. Remove custom cursor and show default on mobile */
+  body, 
+  button,
+  a.magnetic-button,
+  .card-hover,
+  a,
+  input[type="submit"],
+  input[type="button"] {
+    /* Restore default cursor on mobile for all elements */
+    cursor: default !important; 
+  }
+  #custom-cursor-dot,
+  #cursor-trail {
+    /* Hide custom cursor elements on mobile */
+    display: none !important; 
+  }
+
+  /* 2. NEW: Adjust tab buttons for mobile */
+  .tab-button {
+    font-size: 0.875rem; /* Smaller text on mobile */
+    padding: 0.75rem 0.5rem; /* Less horizontal padding */
+  }
+}
+
+/* Performance: skip rendering offscreen until scrolled into view */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
+/* ------------------------------------------ */
+/* CONTACT FORM POLISH */
+/* ------------------------------------------ */
+#contact-form input,
+#contact-form textarea {
+  font-size: 1rem;
+  color: #f3f4f6;
+}
+
+#contact-form button {
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+#contact-form button:hover {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+}
+
+#form-status {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: rgba(24, 24, 27, 0.7);
+  border: 1px solid rgba(63, 63, 70, 0.8);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====================================================== */
+/* === START: CHATBOT CSS (ADDED) === */
+/* ====================================================== */
+/* Custom scrollbar styling for the chat window */
+.chat-container::-webkit-scrollbar {
+    width: 8px;
+}
+.chat-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; /* slate-300 */
+    border-radius: 4px;
+}
+.chat-container::-webkit-scrollbar-track {
+    background-color: #f1f5f9; /* slate-100 */
+}
+/* Base styles to prevent inheriting from host page */
+#chatbot-widget-container, 
+#chatbot-widget-container div, 
+#chatbot-widget-container button, 
+#chatbot-widget-container h1, 
+#chatbot-widget-container p, 
+#chatbot-widget-container input {
+    font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 16px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+/* ====================================================== */
+/* === END: CHATBOT CSS === */
+/* ====================================================== */
