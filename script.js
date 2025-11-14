@@ -350,6 +350,7 @@ if (contactForm) {
 const API_KEY = "dummy_key_required_by_script"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
 const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
 const API_ENDPOINTS = [
+  'https://ruan-coetzee-portfolio.onrender.com/chat',
   'http://localhost:10000/chat',
   'https://us-central1-ruan-portfolio-chatbot.cloudfunctions.net/chatProxy',
   '/.netlify/functions/chat-proxy'
