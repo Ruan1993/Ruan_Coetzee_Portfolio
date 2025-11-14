@@ -305,6 +305,9 @@ if (contactForm) {
         formStatus.classList.remove("text-green-400", "text-red-400"); // Clean up previous status
 
         const formData = new FormData(contactForm);
+        formData.set('subject', "New message from Ruan Coetzee's Portfolio");
+        formData.set('from_name', "Ruan Coetzee's Portfolio Website");
+        if (formData.get('email')) formData.set('reply_to', formData.get('email'));
         
         try {
             const response = await fetch(contactForm.action, {
@@ -346,7 +349,11 @@ if (contactForm) {
 // --- API & State Setup ---
 const API_KEY = "dummy_key_required_by_script"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
 const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
-const API_URL = '/.netlify/functions/chat-proxy';
+const API_ENDPOINTS = [
+  'http://localhost:10000/chat',
+  'https://us-central1-ruan-portfolio-chatbot.cloudfunctions.net/chatProxy',
+  '/.netlify/functions/chat-proxy'
+];
 
 // --- !!! SECURITY WARNING !!! ---
 // Placing your API_KEY directly in client-side JavaScript is insecure.
@@ -481,22 +488,21 @@ async function sendMessage() {
 
     // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
     // NOTE: This is simpler than the old payload in your script.js!
-    const payload = {
-        query: query,
-        websiteContent: websiteContent 
-    };
+    const payload = { query, websiteContent };
 
     const MAX_RETRIES = 3;
     let retryCount = 0;
 
-    while (retryCount < MAX_RETRIES) {
+    const endpoints = API_ENDPOINTS.slice();
+    while (retryCount < MAX_RETRIES && endpoints.length) {
         try {
             // Check for API key is no longer needed since the key is hidden, but can be left as a dummy check.
             if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY") {
                  // Throwing this error won't stop the proxy call, but is a safe guard.
             }
         
-            const response = await fetch(API_URL, {
+            const url = endpoints[0];
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload) // Send simple JSON data
@@ -519,6 +525,8 @@ async function sendMessage() {
             }
         } catch (error) {
             console.error("Error during API call:", error);
+            // Try next endpoint on first failure of current
+            endpoints.shift();
             retryCount++;
             if (retryCount >= MAX_RETRIES) {
                 // Failed after max retries
