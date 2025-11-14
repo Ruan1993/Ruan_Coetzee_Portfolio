@@ -41,6 +41,13 @@ async def chat(request: Request):
     client = get_client()
     if client is None:
         return JSONResponse({"error": "Missing GEMINI_API_KEY"}, status_code=500)
+    max_len_env = os.environ.get("MAX_CONTEXT_LEN")
+    try:
+        max_len = int(max_len_env) if max_len_env else 15000
+    except Exception:
+        max_len = 15000
+    if len(website_content) > max_len:
+        website_content = website_content[:max_len]
     prompt = (
         "You are Bloop. Use ONLY the CONTEXT.\n\n"
         + "CONTEXT:\n" + website_content + "\n\n"

@@ -347,8 +347,8 @@ if (contactForm) {
 // ======================================================
 
 // --- API & State Setup ---
-const API_KEY = "dummy_key_required_by_script"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
 const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
+const MAX_CONTEXT_CHARS = 12000;
 const API_ENDPOINTS = [
   'https://ruan-coetzee-portfolio.onrender.com/chat',
   'http://localhost:10000/chat',
@@ -441,7 +441,8 @@ function initializeChatbot() {
     
     const contentInput = document.getElementById('website-content-input');
     if (contentInput) {
-        websiteContent = contentInput.value;
+        const raw = contentInput.value || "";
+        websiteContent = raw.slice(0, MAX_CONTEXT_CHARS);
     } else {
         console.error("Chatbot training textarea not found!");
         websiteContent = ""; // Set to empty to prevent errors
@@ -497,11 +498,6 @@ async function sendMessage() {
     const endpoints = API_ENDPOINTS.slice();
     while (retryCount < MAX_RETRIES && endpoints.length) {
         try {
-            // Check for API key is no longer needed since the key is hidden, but can be left as a dummy check.
-            if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY") {
-                 // Throwing this error won't stop the proxy call, but is a safe guard.
-            }
-        
             const url = endpoints[0];
             const response = await fetch(url, {
                 method: 'POST',
