@@ -350,10 +350,7 @@ if (contactForm) {
 const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
 const MAX_CONTEXT_CHARS = 12000;
 const API_ENDPOINTS = [
-  'https://ruan-coetzee-portfolio.onrender.com/chat',
-  'http://localhost:10000/chat',
-  'https://us-central1-ruan-portfolio-chatbot.cloudfunctions.net/chatProxy',
-  '/.netlify/functions/chat-proxy'
+  'https://ruan-coetzee-portfolio.onrender.com/chat'
 ];
 
 // --- !!! SECURITY WARNING !!! ---
@@ -370,6 +367,7 @@ let sendButton; // Will be assigned in init
 let loadingIndicator; // Will be assigned in init
 let mainChatWindow; // Will be assigned in init
 let isChatOpen = false;
+let conversation = [];
 
 // --- Utility Functions ---
 
@@ -380,6 +378,9 @@ function toggleChatWindow() {
         mainChatWindow.classList.remove('translate-y-full', 'opacity-0');
         mainChatWindow.classList.add('translate-y-0', 'opacity-100');
         if (userInput) userInput.focus();
+        try { fetch('https://ruan-coetzee-portfolio.onrender.com/healthz', { method: 'GET' }); } catch (_) {}
+        const tip = document.getElementById('chat-tip');
+        if (tip) tip.classList.add('hidden');
     } else {
         mainChatWindow.classList.remove('translate-y-0', 'opacity-100');
         mainChatWindow.classList.add('translate-y-full', 'opacity-0');
@@ -396,12 +397,7 @@ function createMessageElement(text, sender) {
         isUser ? 'bg-user-bubble text-gray-900 rounded-br-none' : 'bg-ai-bubble text-gray-800 rounded-tl-none'
     }`;
     
-    if (!isUser) {
-         const senderLabel = document.createElement('p');
-         senderLabel.className = 'font-semibold text-xs mb-1 text-primary-blue';
-         senderLabel.textContent = 'Bloop'; // Updated name
-         bubble.appendChild(senderLabel);
-    }
+    
 
     const content = document.createElement('p');
     // Sanitize text to prevent HTML injection - a simple textContent is safest
@@ -417,6 +413,8 @@ function appendMessage(text, sender) {
     const messageElement = createMessageElement(text, sender);
     chatContainer.appendChild(messageElement);
     chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+    if (sender === 'user') conversation.push({ role: 'user', content: text });
+    if (sender === 'ai') conversation.push({ role: 'assistant', content: text });
 }
 
 function setChatState(isLoading) {
@@ -426,6 +424,38 @@ function setChatState(isLoading) {
     if (isLoading && chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
+    if (!isLoading && userInput) {
+        try { userInput.focus(); } catch (_) {}
+    }
+}
+
+function normalizeAIText(text) {
+    if (!text) return "";
+    let t = String(text);
+    t = t.replace(/\*\*/g, "");
+    t = t.replace(/(^|\n)#{1,6}\s*/g, "$1");
+    t = t.replace(/```[\s\S]*?```/g, "");
+    t = t.replace(/\r/g, "");
+    t = t.replace(/\n{3,}/g, "\n\n");
+    t = t.replace(/^\s*\*\s+/gm, "- ");
+    t = t.replace(/^\s*-\s+/gm, "- ");
+    t = t.replace(/__([^_]+)__/g, "$1");
+    t = t.replace(/^\s*Bloop!?\s*/i, "");
+    t = t.replace(/\bBloop!?\b:\s*/gi, "");
+    return t.trim();
+}
+
+function collectWebsiteContent() {
+    const acc = [];
+    const exclude = document.getElementById('chatbot-widget-container');
+    const nodes = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, .project-card'));
+    for (const el of nodes) {
+        if (exclude && exclude.contains(el)) continue;
+        const txt = (el.innerText || '').trim();
+        if (txt && txt.length > 2) acc.push(txt);
+    }
+    const joined = acc.join('\n');
+    return joined;
 }
 
 // --- Core Chat Functionality ---
@@ -440,13 +470,11 @@ function initializeChatbot() {
     mainChatWindow = document.getElementById('main-chat-window');
     
     const contentInput = document.getElementById('website-content-input');
-    if (contentInput) {
-        const raw = contentInput.value || "";
-        websiteContent = raw.slice(0, MAX_CONTEXT_CHARS);
-    } else {
-        console.error("Chatbot training textarea not found!");
-        websiteContent = ""; // Set to empty to prevent errors
-    }
+    let raw = "";
+    if (contentInput) { raw = contentInput.value || ""; }
+    const scraped = collectWebsiteContent();
+    const combined = [raw, scraped].filter(Boolean).join('\n\n');
+    websiteContent = combined.slice(0, MAX_CONTEXT_CHARS);
     
     const trainingArea = document.getElementById('training-area');
     if (trainingArea) {
@@ -487,10 +515,30 @@ async function sendMessage() {
     
     // 2. Set loading state
     setChatState(true);
+    
+    const ql = query.toLowerCase();
+    const localMap = (
+        () => {
+            if (/\b(hi|hello|hey|good\s*morning|good\s*evening)\b/.test(ql)) return "Hi! How can I help you today?";
+            if (/\b(how\s*are\s*you)\b/.test(ql)) return "I'm doing well and ready to help. What would you like to know?";
+            if (/\b(who\s*are\s*you|what\s*are\s*you)\b/.test(ql)) return "I'm the website assistant for Ruan Coetzee. Ask me about skills, projects, or how to get in touch.";
+            if (/\b(thank\s*you|thanks)\b/.test(ql)) return "You're welcome! Anything else I can help with?";
+            if (/\b(what\s*can\s*you\s*do)\b/.test(ql)) return "I can answer questions about Ruan's background, skills, services, and contact details.";
+            return null;
+        }
+    )();
+    if (localMap) {
+        appendMessage(localMap, 'ai');
+        setChatState(false);
+        return;
+    }
 
     // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
     // NOTE: This is simpler than the old payload in your script.js!
-    const payload = { query, websiteContent };
+    const styleEl = document.getElementById('answer-style');
+    const style = styleEl && styleEl.value ? styleEl.value : 'concise';
+    const history = conversation.slice(-6);
+    const payload = { query, websiteContent, style, history };
 
     const MAX_RETRIES = 3;
     let retryCount = 0;
@@ -513,8 +561,9 @@ async function sendMessage() {
             const result = await response.json();
             
             // *** CRITICAL FIX HERE ***
-            if (result.text) { // Check for the simple 'text' field returned by the proxy
-                appendMessage(result.text, 'ai');
+            if (result.text) {
+                const clean = normalizeAIText(result.text);
+                appendMessage(clean, 'ai');
                 setChatState(false);
                 return; // Success, exit function
             } else {
@@ -544,9 +593,60 @@ async function sendMessage() {
 
 // Initialize the chatbot AFTER the main DOMContentLoaded has finished
 // We wrap it in its own event listener to be safe.
+function positionChatTip() {
+    const tip = document.getElementById('chat-tip');
+    const btn = document.getElementById('chat-toggle-button');
+    if (!tip || !btn) return;
+    const r = btn.getBoundingClientRect();
+    const margin = 12;
+    const tipRect = tip.getBoundingClientRect();
+    const tipW = tipRect.width || 260;
+    const tipH = tipRect.height || 40;
+    let left = r.left + r.width / 2 - tipW / 2;
+    left = Math.max(margin, Math.min(left, window.innerWidth - tipW - margin));
+    const belowTop = r.bottom + 12;
+    const aboveTop = r.top - tipH - 12;
+    let top;
+    if (belowTop + tipH + margin <= window.innerHeight) {
+        top = Math.min(window.innerHeight - tipH - margin, Math.max(margin, belowTop));
+        tip.classList.add('below');
+        tip.classList.remove('above');
+    } else {
+        top = Math.max(margin, aboveTop);
+        tip.classList.add('above');
+        tip.classList.remove('below');
+    }
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+    tip.style.transform = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeChatbot();
+    const tip = document.getElementById('chat-tip');
+    if (tip) {
+        setTimeout(() => {
+            positionChatTip();
+            tip.textContent = 'Hi! How can I help you today?';
+            tip.classList.remove('hidden');
+            setTimeout(() => { tip.classList.add('hidden'); }, 7000);
+        }, 2500);
+        setTimeout(() => {
+            if (!isChatOpen) {
+                tip.textContent = 'Any Questions??';
+                positionChatTip();
+                tip.classList.remove('hidden');
+                setTimeout(() => { tip.classList.add('hidden'); }, 5000);
+            }
+        }, 60000);
+        window.addEventListener('resize', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
+        window.addEventListener('scroll', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
+    }
+    
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isChatOpen) toggleChatWindow(); });
 });
+
+ 
 
 // ======================================================
 // === END: CHATBOT JAVASCRIPT ===
