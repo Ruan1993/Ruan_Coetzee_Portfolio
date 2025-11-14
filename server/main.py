@@ -36,6 +36,8 @@ async def chat(request: Request):
     data = await request.json()
     query = data.get("query")
     website_content = data.get("websiteContent")
+    style = data.get("style")
+    history = data.get("history") or []
     if not query or not website_content:
         return JSONResponse({"error": "Missing query or websiteContent"}, status_code=400)
     client = get_client()
@@ -48,13 +50,24 @@ async def chat(request: Request):
         max_len = 15000
     if len(website_content) > max_len:
         website_content = website_content[:max_len]
+    hist_lines = []
+    for item in history[-6:]:
+        role = item.get("role")
+        content = item.get("content")
+        if role and content:
+            hist_lines.append(f"{role}: {content}")
+    hist_text = "\n".join(hist_lines)
+    style_text = "Concise, plain text." if (style != "detailed") else "Detailed, but still plain text; use short bullet points where helpful."
     prompt = (
-        "You are Bloop. Use ONLY the CONTEXT.\n\n"
+        "You are the assistant for Ruan Coetzee's website.\n"
+        + f"Style: {style_text}\n"
+        + "Use ONLY the provided CONTEXT. If the answer is not in CONTEXT, say so and ask a brief clarifying question.\n\n"
+        + ("Previous conversation:\n" + hist_text + "\n\n" if hist_text else "")
         + "CONTEXT:\n" + website_content + "\n\n"
-        + "Question: " + query
+        + "USER QUESTION:\n" + query
     )
     try:
-        resp = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        resp = client.models.generate_content(model="gemini-1.5-flash-latest", contents=prompt)
         return JSONResponse({"text": resp.text})
     except Exception:
         return JSONResponse({"error": "AI generation failed"}, status_code=500)

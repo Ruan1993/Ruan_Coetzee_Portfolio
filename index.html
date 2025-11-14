@@ -1713,26 +1713,36 @@
 
     <div id="chatbot-widget-container">
         <button id="chat-toggle-button" onclick="toggleChatWindow()" 
-                class="fixed bottom-8 right-8 z-[1001] bg-primary-blue text-white p-3 rounded-full shadow-2xl hover:bg-blue-700 transition duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10">
-                <path d="M12 8V4H8"/>
-                <rect width="16" height="12" x="4" y="8" rx="2"/>
-                <path d="M4 14.5h16"/>
-                <path d="M8 18v2"/>
-                <path d="M16 18v2"/>
-                <line x1="10" y1="12.5" x2="14" y2="12.5"/> 
+                class="fixed z-[1001] bg-primary-blue text-white p-3 rounded-full shadow-2xl hover:bg-blue-700 transition duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" class="w-14 h-14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="6" width="16" height="14" rx="3"/>
+                <circle cx="11" cy="12" r="2"/>
+                <circle cx="17" cy="12" r="2"/>
+                <path d="M9 17h10"/>
+                <path d="M14 6V3"/>
+                <circle cx="14" cy="2" r="1.5"/>
+                <path d="M6 10l-2 2"/>
+                <path d="M22 10l2 2"/>
             </svg>
         </button>
+        <div id="chat-tip" class="chat-tip hidden">Hi! How can I help you today?</div>
     
         <div id="main-chat-window" class="fixed bottom-24 right-4 z-40 w-[350px] max-w-[90vw] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col h-[70vh] min-h-[400px] max-h-[600px] transform translate-y-full opacity-0 transition-all duration-300">
             
             <header class="p-4 bg-primary-blue text-white shadow-md flex justify-between items-center flex-shrink-0">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold">Bloop</h1>
+                    <h1 class="text-xl font-bold">Blop</h1>
                     <div class="text-sm opacity-80 ml-4">Website Assistant</div>
                 </div>
-                <button id="chat-close-button" onclick="toggleChatWindow()" class="p-1 rounded-full hover:bg-blue-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <div class="flex items-center space-x-2">
+                    <label for="answer-style" class="text-xs opacity-80">Style</label>
+                    <select id="answer-style" class="text-black text-xs rounded-md px-2 py-1">
+                        <option value="concise" selected>Concise</option>
+                        <option value="detailed">Detailed</option>
+                    </select>
+                </div>
+                <button id="chat-close-button" onclick="toggleChatWindow()" class="bg-white text-black p-1 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
@@ -1742,9 +1752,9 @@
             <div id="chat-container" class="chat-container flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50">
                 <div class="flex justify-start">
                     <div class="max-w-xs md:max-w-md p-3 rounded-lg bg-ai-bubble text-gray-800 shadow-sm">
-                        <p class="font-semibold text-sm mb-1 text-primary-blue">Bloop</p>
+                        <p class="font-semibold text-sm mb-1 text-primary-blue">Blop</p>
                         <p class="text-sm">
-                            Hello! I am Bloop, an AI assistant trained on this website's content. Ask me anything about Ruan's skills, projects, or background.
+                            Hello! I am Blop, the website assistant. Ask me anything about Ruan's skills, projects, or background.
                         </p>
                     </div>
                 </div>
