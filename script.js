@@ -352,7 +352,6 @@ const __cfg = window.ChatbotConfig || {};
 const TRAINING_ONLY = !!__cfg.trainingOnly;
 const API_ENDPOINTS = [
   ...(__cfg.endpoint ? [__cfg.endpoint] : []),
-  'http://localhost:5000/chat',
   ...((Array.isArray(__cfg.fallbackEndpoints) && __cfg.fallbackEndpoints.length) ? __cfg.fallbackEndpoints : [])
 ];
 
@@ -558,7 +557,9 @@ async function sendMessage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
-                signal: controller.signal
+                signal: controller.signal,
+                mode: 'cors',
+                credentials: 'omit'
             });
             clearTimeout(t);
 
