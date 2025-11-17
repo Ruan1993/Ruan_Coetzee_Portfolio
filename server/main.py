@@ -1,68 +1,115 @@
 import os
-import json
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from google import genai
+import time
+import hashlib
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings, OllamaEmbeddings
+from langchain_community.chat_models import ChatOllama
+from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-app = FastAPI()
+app = Flask(__name__)
 
 origins_env = os.environ.get("CORS_ORIGINS")
 allow_origins = ["*"]
 if origins_env:
-    if origins_env.strip().startswith("["):
-        try:
-            allow_origins = json.loads(origins_env)
-        except Exception:
-            allow_origins = [origins_env]
-    else:
-        allow_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+    allow_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+CORS(app, origins=allow_origins, methods=["GET", "POST", "OPTIONS"], allow_headers=["*"])
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allow_origins,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"]
-)
+INDEX_CACHE = {}
+MAX_CONTEXT_LEN = int(os.environ.get("MAX_CONTEXT_LEN", "15000"))
+INDEX_CACHE_SIZE = int(os.environ.get("INDEX_CACHE_SIZE", "3"))
 
-def get_client():
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        return None
-    return genai.Client(api_key=api_key)
+def get_embeddings():
+    base_url = os.environ.get("OLLAMA_BASE_URL")
+    model = os.environ.get("OLLAMA_EMBEDDING_MODEL")
+    if base_url and model:
+        return OllamaEmbeddings(base_url=base_url, model=model)
+    return HuggingFaceEmbeddings(model_name=os.environ.get("HF_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"))
 
-@app.post("/chat")
-async def chat(request: Request):
-    data = await request.json()
-    query = data.get("query")
-    website_content = data.get("websiteContent")
-    if not query or not website_content:
-        return JSONResponse({"error": "Missing query or websiteContent"}, status_code=400)
-    client = get_client()
-    if client is None:
-        return JSONResponse({"error": "Missing GEMINI_API_KEY"}, status_code=500)
-    max_len_env = os.environ.get("MAX_CONTEXT_LEN")
+def get_llm():
+    temperature = float(os.environ.get("LLM_TEMPERATURE", "0.2"))
+    google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_GENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if google_key:
+        os.environ["GOOGLE_API_KEY"] = google_key
+        gm = os.environ.get("GOOGLE_MODEL", "gemini-1.5-flash-latest")
+        return ChatGoogleGenerativeAI(model=gm, temperature=temperature)
+    if openai_key:
+        om = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+        return ChatOpenAI(model=om, temperature=temperature)
+    base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    model = os.environ.get("OLLAMA_MODEL", "llama3.1:8b")
+    return ChatOllama(base_url=base_url, model=model, temperature=temperature)
+
+def get_vectorstore(text):
+    if len(text) > MAX_CONTEXT_LEN:
+        text = text[:MAX_CONTEXT_LEN]
+    h = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    if h in INDEX_CACHE:
+        return INDEX_CACHE[h]["store"]
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    docs = splitter.split_text(text)
+    embeddings = get_embeddings()
+    store = FAISS.from_texts(docs, embeddings)
+    INDEX_CACHE[h] = {"store": store, "ts": time.time()}
+    if len(INDEX_CACHE) > INDEX_CACHE_SIZE:
+        oldest = sorted(INDEX_CACHE.items(), key=lambda x: x[1]["ts"])[0][0]
+        INDEX_CACHE.pop(oldest, None)
+    return store
+
+@app.post("/api/chat")
+def chat():
     try:
-        max_len = int(max_len_env) if max_len_env else 15000
+        data = request.get_json(force=True)
     except Exception:
-        max_len = 15000
-    if len(website_content) > max_len:
-        website_content = website_content[:max_len]
+        return jsonify({"error": "Invalid JSON"}), 400
+    query = (data or {}).get("query")
+    website_content = (data or {}).get("websiteContent")
+    style = (data or {}).get("style") or "concise"
+    history = (data or {}).get("history") or []
+    if not query or not website_content:
+        return jsonify({"error": "Missing query or websiteContent"}), 400
+    hist_lines = []
+    for item in history[-6:]:
+        role = item.get("role")
+        content = item.get("content")
+        if role and content:
+            hist_lines.append(f"{role}: {content}")
+    hist_text = "\n".join(hist_lines)
+    style_text = "Concise, plain text." if (style != "detailed") else "Detailed, but still plain text; use short bullet points where helpful."
+    store = get_vectorstore(website_content)
+    retriever = store.as_retriever(search_kwargs={"k": 4})
+    docs = retriever.get_relevant_documents(query)
+    context = "\n\n".join([d.page_content for d in docs])
     prompt = (
-        "You are Bloop. Use ONLY the CONTEXT.\n\n"
-        + "CONTEXT:\n" + website_content + "\n\n"
-        + "Question: " + query
+        "You are the assistant for this website.\n"
+        + f"Style: {style_text}\n"
+        + "Use ONLY the provided CONTEXT. If the answer is not in CONTEXT, say so and ask a brief clarifying question.\n\n"
+        + ("Previous conversation:\n" + hist_text + "\n\n" if hist_text else "")
+        + "CONTEXT:\n" + context + "\n\n"
+        + "USER QUESTION:\n" + query
     )
     try:
-        resp = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-        return JSONResponse({"text": resp.text})
-    except Exception:
-        return JSONResponse({"error": "AI generation failed"}, status_code=500)
+        llm = get_llm()
+        resp = llm.invoke(prompt)
+        out = getattr(resp, "content", None)
+        if not out:
+            out = str(resp)
+        return jsonify({"text": out})
+    except Exception as e:
+        return jsonify({"error": str(e) or "LLM error"}), 500
+
+@app.post("/chat")
+def chat_compat():
+    return chat()
 
 @app.get("/")
-async def root():
-    return JSONResponse({"status": "ok"})
+def root():
+    return jsonify({"status": "ok"})
 
 @app.get("/healthz")
-async def healthz():
-    return JSONResponse({"status": "ok"})
+def healthz():
+    return jsonify({"status": "ok"})

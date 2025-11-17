@@ -347,21 +347,14 @@ if (contactForm) {
 // ======================================================
 
 // --- API & State Setup ---
-const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
 const MAX_CONTEXT_CHARS = 12000;
+const __cfg = window.ChatbotConfig || {};
+const TRAINING_ONLY = !!__cfg.trainingOnly;
 const API_ENDPOINTS = [
-  'https://ruan-coetzee-portfolio.onrender.com/chat',
-  'http://localhost:10000/chat',
-  'https://us-central1-ruan-portfolio-chatbot.cloudfunctions.net/chatProxy',
-  '/.netlify/functions/chat-proxy'
+  ...(__cfg.endpoint ? [__cfg.endpoint] : []),
+  'http://localhost:5000/chat',
+  ...((Array.isArray(__cfg.fallbackEndpoints) && __cfg.fallbackEndpoints.length) ? __cfg.fallbackEndpoints : [])
 ];
-
-// --- !!! SECURITY WARNING !!! ---
-// Placing your API_KEY directly in client-side JavaScript is insecure.
-// Anyone visiting your site can view the source code and steal your key.
-// For a real-world application, this API call should be made from a secure backend server.
-// For personal or test projects, you MUST restrict your API key in the Google Cloud
-// Console to only work on your specific website domain (which you have already done).
 
 let websiteContent; // Will be populated on init
 let chatContainer; // Will be assigned in init
@@ -370,6 +363,7 @@ let sendButton; // Will be assigned in init
 let loadingIndicator; // Will be assigned in init
 let mainChatWindow; // Will be assigned in init
 let isChatOpen = false;
+let conversation = [];
 
 // --- Utility Functions ---
 
@@ -380,6 +374,16 @@ function toggleChatWindow() {
         mainChatWindow.classList.remove('translate-y-full', 'opacity-0');
         mainChatWindow.classList.add('translate-y-0', 'opacity-100');
         if (userInput) userInput.focus();
+        try {
+            const ep = API_ENDPOINTS[0] || '';
+            if (ep) {
+                const base = ep.endsWith('/chat') ? ep.slice(0, -5) : ep.replace(/\/$/, '');
+                const health = base + '/healthz';
+                fetch(health, { method: 'GET' });
+            }
+        } catch (_) {}
+        const tip = document.getElementById('chat-tip');
+        if (tip) tip.classList.add('hidden');
     } else {
         mainChatWindow.classList.remove('translate-y-0', 'opacity-100');
         mainChatWindow.classList.add('translate-y-full', 'opacity-0');
@@ -396,12 +400,7 @@ function createMessageElement(text, sender) {
         isUser ? 'bg-user-bubble text-gray-900 rounded-br-none' : 'bg-ai-bubble text-gray-800 rounded-tl-none'
     }`;
     
-    if (!isUser) {
-         const senderLabel = document.createElement('p');
-         senderLabel.className = 'font-semibold text-xs mb-1 text-primary-blue';
-         senderLabel.textContent = 'Bloop'; // Updated name
-         bubble.appendChild(senderLabel);
-    }
+    
 
     const content = document.createElement('p');
     // Sanitize text to prevent HTML injection - a simple textContent is safest
@@ -417,6 +416,8 @@ function appendMessage(text, sender) {
     const messageElement = createMessageElement(text, sender);
     chatContainer.appendChild(messageElement);
     chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+    if (sender === 'user') conversation.push({ role: 'user', content: text });
+    if (sender === 'ai') conversation.push({ role: 'assistant', content: text });
 }
 
 function setChatState(isLoading) {
@@ -426,6 +427,38 @@ function setChatState(isLoading) {
     if (isLoading && chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
+    if (!isLoading && userInput) {
+        try { userInput.focus(); } catch (_) {}
+    }
+}
+
+function normalizeAIText(text) {
+    if (!text) return "";
+    let t = String(text);
+    t = t.replace(/\*\*/g, "");
+    t = t.replace(/(^|\n)#{1,6}\s*/g, "$1");
+    t = t.replace(/```[\s\S]*?```/g, "");
+    t = t.replace(/\r/g, "");
+    t = t.replace(/\n{3,}/g, "\n\n");
+    t = t.replace(/^\s*\*\s+/gm, "- ");
+    t = t.replace(/^\s*-\s+/gm, "- ");
+    t = t.replace(/__([^_]+)__/g, "$1");
+    t = t.replace(/^\s*Bloop!?\s*/i, "");
+    t = t.replace(/\bBloop!?\b:\s*/gi, "");
+    return t.trim();
+}
+
+function collectWebsiteContent() {
+    const acc = [];
+    const exclude = document.getElementById('chatbot-widget-container');
+    const nodes = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, .project-card'));
+    for (const el of nodes) {
+        if (exclude && exclude.contains(el)) continue;
+        const txt = (el.innerText || '').trim();
+        if (txt && txt.length > 2) acc.push(txt);
+    }
+    const joined = acc.join('\n');
+    return joined;
 }
 
 // --- Core Chat Functionality ---
@@ -440,13 +473,11 @@ function initializeChatbot() {
     mainChatWindow = document.getElementById('main-chat-window');
     
     const contentInput = document.getElementById('website-content-input');
-    if (contentInput) {
-        const raw = contentInput.value || "";
-        websiteContent = raw.slice(0, MAX_CONTEXT_CHARS);
-    } else {
-        console.error("Chatbot training textarea not found!");
-        websiteContent = ""; // Set to empty to prevent errors
-    }
+    let raw = "";
+    if (contentInput) { raw = contentInput.value || ""; }
+    const scraped = TRAINING_ONLY ? "" : collectWebsiteContent();
+    const combined = [raw, scraped].filter(Boolean).join('\n\n');
+    websiteContent = combined.slice(0, MAX_CONTEXT_CHARS);
     
     const trainingArea = document.getElementById('training-area');
     if (trainingArea) {
@@ -487,34 +518,70 @@ async function sendMessage() {
     
     // 2. Set loading state
     setChatState(true);
+    
+    const ql = query.toLowerCase();
+    const localMap = (
+        () => {
+            if (/\b(hi|hello|hey|good\s*morning|good\s*evening)\b/.test(ql)) return "Hi! How can I help you today?";
+            if (/\b(how\s*are\s*you)\b/.test(ql)) return "I'm doing well and ready to help. What would you like to know?";
+            if (/\b(who\s*are\s*you|what\s*are\s*you)\b/.test(ql)) return "I'm the website assistant for Ruan Coetzee. Ask me about skills, projects, or how to get in touch.";
+            if (/\b(thank\s*you|thanks)\b/.test(ql)) return "You're welcome! Anything else I can help with?";
+            if (/\b(what\s*can\s*you\s*do)\b/.test(ql)) return "I can answer questions about Ruan's background, skills, services, and contact details.";
+            return null;
+        }
+    )();
+    if (localMap) {
+        appendMessage(localMap, 'ai');
+        setChatState(false);
+        return;
+    }
 
     // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
     // NOTE: This is simpler than the old payload in your script.js!
-    const payload = { query, websiteContent };
+    const styleEl = document.getElementById('answer-style');
+    const style = styleEl && styleEl.value ? styleEl.value : 'concise';
+    const history = conversation.slice(-6);
+    const payload = { query, websiteContent, style, history };
 
     const MAX_RETRIES = 3;
     let retryCount = 0;
+    let lastError = null;
 
     const endpoints = API_ENDPOINTS.slice();
     while (retryCount < MAX_RETRIES && endpoints.length) {
         try {
             const url = endpoints[0];
+            const controller = new AbortController();
+            const timeoutMs = 15000;
+            const t = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload) // Send simple JSON data
+                body: JSON.stringify(payload),
+                signal: controller.signal
             });
+            clearTimeout(t);
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Proxy error! status: ${response.status} ${response.statusText} - ${errorText}`);
+                let errMsg = `Proxy error! status: ${response.status} ${response.statusText}`;
+                try {
+                    const errJson = await response.json();
+                    if (errJson && errJson.error) {
+                        errMsg += ` - ${errJson.error}`;
+                    }
+                } catch (_) {
+                    const errorText = await response.text();
+                    if (errorText) errMsg += ` - ${errorText}`;
+                }
+                throw new Error(errMsg);
             }
 
             const result = await response.json();
             
             // *** CRITICAL FIX HERE ***
-            if (result.text) { // Check for the simple 'text' field returned by the proxy
-                appendMessage(result.text, 'ai');
+            if (result.text) {
+                const clean = normalizeAIText(result.text);
+                appendMessage(clean, 'ai');
                 setChatState(false);
                 return; // Success, exit function
             } else {
@@ -522,14 +589,21 @@ async function sendMessage() {
             }
         } catch (error) {
             console.error("Error during API call:", error);
+            lastError = error;
             // Try next endpoint on first failure of current
             endpoints.shift();
             retryCount++;
             if (retryCount >= MAX_RETRIES) {
                 // Failed after max retries
                 let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
-                if (error.message.includes("400") || error.message.includes("Proxy error")) {
+                const msg = String(error.message || "");
+                if (error.name === 'AbortError') {
+                    friendlyError = "The chatbot service timed out. Please try again.";
+                }
+                if (msg.includes("400") || msg.includes("Proxy error")) {
                     friendlyError = "The chatbot service encountered a server error. Please try again.";
+                } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
+                    friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
                 }
                 appendMessage(friendlyError, 'ai');
                 setChatState(false);
@@ -540,13 +614,77 @@ async function sendMessage() {
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
+    let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
+    const msg = String((lastError && lastError.message) || "");
+    if (lastError && lastError.name === 'AbortError') {
+        friendlyError = "The chatbot service timed out. Please try again.";
+    }
+    if (msg.includes("400") || msg.includes("Proxy error")) {
+        friendlyError = "The chatbot service encountered a server error. Please try again.";
+    } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
+        friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
+    }
+    appendMessage(friendlyError, 'ai');
+    setChatState(false);
+    return;
 }
 
 // Initialize the chatbot AFTER the main DOMContentLoaded has finished
 // We wrap it in its own event listener to be safe.
+function positionChatTip() {
+    const tip = document.getElementById('chat-tip');
+    const btn = document.getElementById('chat-toggle-button');
+    if (!tip || !btn) return;
+    const r = btn.getBoundingClientRect();
+    const margin = 12;
+    const tipRect = tip.getBoundingClientRect();
+    const tipW = tipRect.width || 260;
+    const tipH = tipRect.height || 40;
+    let left = r.left + r.width / 2 - tipW / 2;
+    left = Math.max(margin, Math.min(left, window.innerWidth - tipW - margin));
+    const belowTop = r.bottom + 12;
+    const aboveTop = r.top - tipH - 12;
+    let top;
+    if (belowTop + tipH + margin <= window.innerHeight) {
+        top = Math.min(window.innerHeight - tipH - margin, Math.max(margin, belowTop));
+        tip.classList.add('below');
+        tip.classList.remove('above');
+    } else {
+        top = Math.max(margin, aboveTop);
+        tip.classList.add('above');
+        tip.classList.remove('below');
+    }
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+    tip.style.transform = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeChatbot();
+    const tip = document.getElementById('chat-tip');
+    if (tip) {
+        setTimeout(() => {
+            positionChatTip();
+            tip.textContent = 'Hi! How can I help you today?';
+            tip.classList.remove('hidden');
+            setTimeout(() => { tip.classList.add('hidden'); }, 7000);
+        }, 2500);
+        setTimeout(() => {
+            if (!isChatOpen) {
+                tip.textContent = 'Any Questions??';
+                positionChatTip();
+                tip.classList.remove('hidden');
+                setTimeout(() => { tip.classList.add('hidden'); }, 5000);
+            }
+        }, 60000);
+        window.addEventListener('resize', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
+        window.addEventListener('scroll', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
+    }
+    
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isChatOpen) toggleChatWindow(); });
 });
+
+ 
 
 // ======================================================
 // === END: CHATBOT JAVASCRIPT ===
