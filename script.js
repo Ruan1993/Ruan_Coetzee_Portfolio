@@ -347,18 +347,14 @@ if (contactForm) {
 // ======================================================
 
 // --- API & State Setup ---
-const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
 const MAX_CONTEXT_CHARS = 12000;
+const __cfg = window.ChatbotConfig || {};
+const TRAINING_ONLY = !!__cfg.trainingOnly;
 const API_ENDPOINTS = [
-  'https://ruan-coetzee-portfolio.onrender.com/chat'
+  ...(__cfg.endpoint ? [__cfg.endpoint] : []),
+  'http://localhost:5000/chat',
+  ...((Array.isArray(__cfg.fallbackEndpoints) && __cfg.fallbackEndpoints.length) ? __cfg.fallbackEndpoints : [])
 ];
-
-// --- !!! SECURITY WARNING !!! ---
-// Placing your API_KEY directly in client-side JavaScript is insecure.
-// Anyone visiting your site can view the source code and steal your key.
-// For a real-world application, this API call should be made from a secure backend server.
-// For personal or test projects, you MUST restrict your API key in the Google Cloud
-// Console to only work on your specific website domain (which you have already done).
 
 let websiteContent; // Will be populated on init
 let chatContainer; // Will be assigned in init
@@ -378,7 +374,14 @@ function toggleChatWindow() {
         mainChatWindow.classList.remove('translate-y-full', 'opacity-0');
         mainChatWindow.classList.add('translate-y-0', 'opacity-100');
         if (userInput) userInput.focus();
-        try { fetch('https://ruan-coetzee-portfolio.onrender.com/healthz', { method: 'GET' }); } catch (_) {}
+        try {
+            const ep = API_ENDPOINTS[0] || '';
+            if (ep) {
+                const base = ep.endsWith('/chat') ? ep.slice(0, -5) : ep.replace(/\/$/, '');
+                const health = base + '/healthz';
+                fetch(health, { method: 'GET' });
+            }
+        } catch (_) {}
         const tip = document.getElementById('chat-tip');
         if (tip) tip.classList.add('hidden');
     } else {
@@ -472,7 +475,7 @@ function initializeChatbot() {
     const contentInput = document.getElementById('website-content-input');
     let raw = "";
     if (contentInput) { raw = contentInput.value || ""; }
-    const scraped = collectWebsiteContent();
+    const scraped = TRAINING_ONLY ? "" : collectWebsiteContent();
     const combined = [raw, scraped].filter(Boolean).join('\n\n');
     websiteContent = combined.slice(0, MAX_CONTEXT_CHARS);
     
@@ -542,20 +545,35 @@ async function sendMessage() {
 
     const MAX_RETRIES = 3;
     let retryCount = 0;
+    let lastError = null;
 
     const endpoints = API_ENDPOINTS.slice();
     while (retryCount < MAX_RETRIES && endpoints.length) {
         try {
             const url = endpoints[0];
+            const controller = new AbortController();
+            const timeoutMs = 15000;
+            const t = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload) // Send simple JSON data
+                body: JSON.stringify(payload),
+                signal: controller.signal
             });
+            clearTimeout(t);
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Proxy error! status: ${response.status} ${response.statusText} - ${errorText}`);
+                let errMsg = `Proxy error! status: ${response.status} ${response.statusText}`;
+                try {
+                    const errJson = await response.json();
+                    if (errJson && errJson.error) {
+                        errMsg += ` - ${errJson.error}`;
+                    }
+                } catch (_) {
+                    const errorText = await response.text();
+                    if (errorText) errMsg += ` - ${errorText}`;
+                }
+                throw new Error(errMsg);
             }
 
             const result = await response.json();
@@ -571,14 +589,21 @@ async function sendMessage() {
             }
         } catch (error) {
             console.error("Error during API call:", error);
+            lastError = error;
             // Try next endpoint on first failure of current
             endpoints.shift();
             retryCount++;
             if (retryCount >= MAX_RETRIES) {
                 // Failed after max retries
                 let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
-                if (error.message.includes("400") || error.message.includes("Proxy error")) {
+                const msg = String(error.message || "");
+                if (error.name === 'AbortError') {
+                    friendlyError = "The chatbot service timed out. Please try again.";
+                }
+                if (msg.includes("400") || msg.includes("Proxy error")) {
                     friendlyError = "The chatbot service encountered a server error. Please try again.";
+                } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
+                    friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
                 }
                 appendMessage(friendlyError, 'ai');
                 setChatState(false);
@@ -589,6 +614,19 @@ async function sendMessage() {
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
+    let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
+    const msg = String((lastError && lastError.message) || "");
+    if (lastError && lastError.name === 'AbortError') {
+        friendlyError = "The chatbot service timed out. Please try again.";
+    }
+    if (msg.includes("400") || msg.includes("Proxy error")) {
+        friendlyError = "The chatbot service encountered a server error. Please try again.";
+    } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
+        friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
+    }
+    appendMessage(friendlyError, 'ai');
+    setChatState(false);
+    return;
 }
 
 // Initialize the chatbot AFTER the main DOMContentLoaded has finished
