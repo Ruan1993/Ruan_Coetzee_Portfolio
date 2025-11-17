@@ -21,6 +21,12 @@ MAX_CONTEXT_LEN = int(os.environ.get("MAX_CONTEXT_LEN", "15000"))
 INDEX_CACHE_SIZE = int(os.environ.get("INDEX_CACHE_SIZE", "3"))
 
 def get_embeddings():
+    google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_GENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    if google_key:
+        os.environ["GOOGLE_API_KEY"] = google_key
+        from langchain_google_genai import GoogleGenerativeAIEmbeddings
+        em = os.environ.get("GOOGLE_EMBED_MODEL", "text-embedding-004")
+        return GoogleGenerativeAIEmbeddings(model=em)
     base_url = os.environ.get("OLLAMA_BASE_URL")
     model = os.environ.get("OLLAMA_EMBEDDING_MODEL")
     if base_url and model:
