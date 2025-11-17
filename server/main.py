@@ -7,8 +7,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings, OllamaEmbeddings
 from langchain_community.chat_models import ChatOllama
-from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 app = Flask(__name__)
 
@@ -36,9 +34,11 @@ def get_llm():
     if google_key:
         os.environ["GOOGLE_API_KEY"] = google_key
         gm = os.environ.get("GOOGLE_MODEL", "gemini-1.5-flash-latest")
+        from langchain_google_genai import ChatGoogleGenerativeAI
         return ChatGoogleGenerativeAI(model=gm, temperature=temperature)
     if openai_key:
         om = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+        from langchain_openai import ChatOpenAI
         return ChatOpenAI(model=om, temperature=temperature)
     base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     model = os.environ.get("OLLAMA_MODEL", "llama3.1:8b")
