@@ -1,7 +1,7 @@
 flask==3.0.0
 flask-cors==4.0.0
-langchain==0.2.15
-langchain-community==0.2.12
+langchain
+langchain-community
 faiss-cpu>=1.7.4
 gunicorn==22.0.0
-langchain-google-genai==2.0.3
+langchain-google-genai
