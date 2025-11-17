@@ -380,7 +380,7 @@ function toggleChatWindow() {
             if (ep) {
                 const base = ep.endsWith('/chat') ? ep.slice(0, -5) : ep.replace(/\/$/, '');
                 const health = base + '/healthz';
-                fetch(health, { method: 'GET' });
+                fetch(health, { method: 'GET', mode: 'no-cors', cache: 'no-store' }).catch(() => {});
             }
         } catch (_) {}
         const tip = document.getElementById('chat-tip');
@@ -397,7 +397,7 @@ function createMessageElement(text, sender) {
     messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
 
     const bubble = document.createElement('div');
-    bubble.className = `max-w-xs md:max-w-md p-3 rounded-lg shadow-md text-sm ${
+    bubble.className = `chat-bubble chat-pop max-w-xs md:max-w-md p-3 rounded-lg shadow-md text-sm ${
         isUser ? 'bg-user-bubble text-gray-900 rounded-br-none' : 'bg-ai-bubble text-gray-800 rounded-tl-none'
     }`;
     
@@ -416,7 +416,9 @@ function appendMessage(text, sender) {
     if (!chatContainer) return;
     const messageElement = createMessageElement(text, sender);
     chatContainer.appendChild(messageElement);
-    chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
+    try {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (_) {}
     if (sender === 'user') conversation.push({ role: 'user', content: text });
     if (sender === 'ai') conversation.push({ role: 'assistant', content: text });
 }
@@ -426,7 +428,11 @@ function setChatState(isLoading) {
     if (userInput) userInput.disabled = isLoading;
     if (loadingIndicator) loadingIndicator.classList.toggle('hidden', !isLoading);
     if (isLoading && chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        const threshold = 40;
+        const atBottom = (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight) < threshold;
+        if (atBottom) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     }
     if (!isLoading && userInput) {
         try { userInput.focus(); } catch (_) {}
@@ -482,7 +488,7 @@ function initializeChatbot() {
     
     const trainingArea = document.getElementById('training-area');
     if (trainingArea) {
-        trainingArea.style.display = 'none'; // Hide the training area completely
+        trainingArea.style.display = 'none';
     }
     
     // Add event listeners for chatbot elements
@@ -543,8 +549,7 @@ async function sendMessage() {
 
     // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
     // NOTE: This is simpler than the old payload in your script.js!
-    const styleEl = document.getElementById('answer-style');
-    const style = styleEl && styleEl.value ? styleEl.value : 'concise';
+    const style = 'detailed';
     const history = conversation.slice(-6);
     const payload = { query, websiteContent, style, history };
 
@@ -561,7 +566,7 @@ async function sendMessage() {
             const t = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8', 'Accept': 'application/json' },
                 body: JSON.stringify(payload),
                 signal: controller.signal,
                 mode: 'cors',
@@ -611,8 +616,8 @@ async function sendMessage() {
                 if (error.name === 'AbortError') {
                     friendlyError = "The chatbot service timed out. Please try again.";
                 }
-                if (msg.includes("400") || msg.includes("Proxy error")) {
-                    friendlyError = "The chatbot service encountered a server error. Please try again.";
+                if (msg.includes("500") || msg.includes("Proxy error") || msg.toLowerCase().includes("internal server error")) {
+                    friendlyError = "The chatbot service encountered a server error (500). Please try again in a moment.";
                 } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
                     friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
                 }
@@ -630,8 +635,8 @@ async function sendMessage() {
     if (lastError && lastError.name === 'AbortError') {
         friendlyError = "The chatbot service timed out. Please try again.";
     }
-    if (msg.includes("400") || msg.includes("Proxy error")) {
-        friendlyError = "The chatbot service encountered a server error. Please try again.";
+    if (msg.includes("500") || msg.includes("Proxy error") || msg.toLowerCase().includes("internal server error")) {
+        friendlyError = "The chatbot service encountered a server error (500). Please try again in a moment.";
     } else if (msg.toLowerCase().includes("quota") || msg.includes("429") || msg.toLowerCase().includes("rate")) {
         friendlyError = "Rate limit reached on the AI service. Please wait a moment and try again.";
     }
@@ -651,23 +656,16 @@ function positionChatTip() {
     const tipRect = tip.getBoundingClientRect();
     const tipW = tipRect.width || 260;
     const tipH = tipRect.height || 40;
-    let left = r.left + r.width / 2 - tipW / 2;
+    let left = r.left - tipW - margin;
     left = Math.max(margin, Math.min(left, window.innerWidth - tipW - margin));
-    const belowTop = r.bottom + 12;
-    const aboveTop = r.top - tipH - 12;
-    let top;
-    if (belowTop + tipH + margin <= window.innerHeight) {
-        top = Math.min(window.innerHeight - tipH - margin, Math.max(margin, belowTop));
-        tip.classList.add('below');
-        tip.classList.remove('above');
-    } else {
-        top = Math.max(margin, aboveTop);
-        tip.classList.add('above');
-        tip.classList.remove('below');
-    }
+    const centerTop = r.top + r.height / 2 - tipH / 2;
+    let top = Math.max(margin, Math.min(centerTop, window.innerHeight - tipH - margin));
     tip.style.left = `${left}px`;
     tip.style.top = `${top}px`;
     tip.style.transform = 'none';
+    tip.classList.add('point-right');
+    tip.classList.remove('below');
+    tip.classList.remove('above');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

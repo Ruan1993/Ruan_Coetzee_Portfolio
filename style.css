@@ -346,19 +346,27 @@ input[type="button"] {
 /* ====================================================== */
 /* === START: CHATBOT CSS (ADDED) === */
 /* ====================================================== */
+@keyframes chatPopIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-bubble.chat-pop { animation: chatPopIn 0.18s ease-out; }
+/* Preserve newlines and spacing inside chat bubbles */
+.chat-bubble p { white-space: pre-line; line-height: 1.6; }
 /* Custom scrollbar styling for the chat window */
-.chat-container::-webkit-scrollbar {
-    width: 8px;
+.chat-container::-webkit-scrollbar { width: 0; height: 0; }
+.chat-container { scrollbar-width: none; -ms-overflow-style: none; }
+/* Improve scroll behavior and cross-browser styling */
+.chat-container {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
-.chat-container::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1; /* slate-300 */
-    border-radius: 4px;
+@supports not selector(::-webkit-scrollbar) {
+  .chat-container { scrollbar-width: thin; }
 }
-.chat-container::-webkit-scrollbar-track {
-    background-color: #f1f5f9; /* slate-100 */
-}
-#chat-toggle-button { position: fixed; top: 120px; right: 260px; }
-@media (max-width: 767px) { #chat-toggle-button { top: auto; bottom: 16px; right: 16px; } }
+#chat-toggle-button { position: fixed; bottom: 16px; right: 16px; }
+@media (max-width: 767px) { #chat-toggle-button { bottom: 16px; right: 16px; } }
 #chat-tip {
   position: fixed;
   background: #ffffff;
@@ -393,6 +401,16 @@ input[type="button"] {
   border-style: solid;
   border-color: #ffffff transparent transparent transparent;
 }
+/* New: right-pointing arrow when tip is left of the icon */
+#chat-tip.point-right::after {
+  left: auto;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 0 6px 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent #ffffff;
+}
 /* Base styles to prevent inheriting from host page */
 #chatbot-widget-container, 
 #chatbot-widget-container div, 
@@ -408,3 +426,7 @@ input[type="button"] {
 /* ====================================================== */
 /* === END: CHATBOT CSS === */
 /* ====================================================== */
+#training-area { display: none; }
+#training-area textarea { width: 100%; box-sizing: border-box; }
+#training-area textarea::-webkit-scrollbar { width: 0; height: 0; }
+#training-area textarea { scrollbar-width: none; -ms-overflow-style: none; }

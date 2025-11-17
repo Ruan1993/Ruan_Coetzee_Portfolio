@@ -5,13 +5,21 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-origins_env = os.environ.get("CORS_ORIGINS")
-allow_origins = ["*"]
-if origins_env:
-    allow_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
-CORS(app, origins=allow_origins, methods=["GET", "POST", "OPTIONS"], allow_headers=["*"])
+origins_env = os.environ.get("CORS_ORIGINS", "")
+if origins_env.strip():
+    parsed = [o.strip() for o in origins_env.split(",") if o.strip()]
+    allow_origins = "*" if ("*" in parsed) else parsed
+else:
+    allow_origins = "*"
+CORS(
+    app,
+    resources={r"/*": {"origins": allow_origins}},
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+    supports_credentials=False,
+)
 
-MAX_CONTEXT_LEN = int(os.environ.get("MAX_CONTEXT_LEN", "6000"))
+MAX_CONTEXT_LEN = int(os.environ.get("MAX_CONTEXT_LEN", "12000"))
 
 def get_embeddings():
     google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_GENAI_API_KEY") or os.environ.get("GEMINI_API_KEY")
@@ -52,7 +60,10 @@ def chat():
         if role and content:
             hist_lines.append(f"{role}: {content}")
     hist_text = "\n".join(hist_lines)
-    style_text = "Concise, plain text." if (style != "detailed") else "Detailed, but still plain text; use short bullet points where helpful."
+    style_text = (
+        "Concise, plain text." if (style != "detailed") else
+        "Detailed, plain text; use excellent grammar; respond in short paragraphs with blank lines between them; use brief bullet points for lists; avoid markdown styling other than hyphen bullets."
+    )
     context = get_context(website_content)
     prompt = (
         "You are the assistant for this website.\n"
