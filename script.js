@@ -1,18 +1,20 @@
 // ------------------------------------------------------------------
 // --- Tailwind Configuration (Reference) ---
 // ------------------------------------------------------------------
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: "#3B82F6",
-        secondary: "#10B981",
-        "dark-bg": "#0A0A0A",
-        "card-bg": "#18181B",
-      },
-    },
-  },
-};
+if (typeof window !== "undefined" && window.tailwind) {
+  window.tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: "#3B82F6",
+          secondary: "#10B981",
+          "dark-bg": "#0A0A0A",
+          "card-bg": "#18181B",
+        },
+      },
+    },
+  };
+}
 
 // ------------------------------------------------------------------
 // --- DOMContentLoaded: All UI + Form Logic ---
@@ -500,6 +502,10 @@ function initializeChatbot() {
     if (toggleButton) {
         toggleButton.onclick = toggleChatWindow;
     }
+    const closeButton = document.getElementById('chat-close-button');
+    if (closeButton) {
+        closeButton.onclick = toggleChatWindow;
+    }
 }
 
 async function sendMessage() {
@@ -551,7 +557,7 @@ async function sendMessage() {
         try {
             const url = endpoints[0];
             const controller = new AbortController();
-            const timeoutMs = 15000;
+            const timeoutMs = 45000;
             const t = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch(url, {
                 method: 'POST',
@@ -565,14 +571,18 @@ async function sendMessage() {
 
             if (!response.ok) {
                 let errMsg = `Proxy error! status: ${response.status} ${response.statusText}`;
-                try {
-                    const errJson = await response.json();
-                    if (errJson && errJson.error) {
-                        errMsg += ` - ${errJson.error}`;
+                const raw = await response.text();
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.error) {
+                            errMsg += ` - ${parsed.error}`;
+                        } else {
+                            errMsg += ` - ${raw}`;
+                        }
+                    } catch (_) {
+                        errMsg += ` - ${raw}`;
                     }
-                } catch (_) {
-                    const errorText = await response.text();
-                    if (errorText) errMsg += ` - ${errorText}`;
                 }
                 throw new Error(errMsg);
             }
