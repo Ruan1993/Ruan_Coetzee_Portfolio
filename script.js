@@ -531,13 +531,38 @@ async function sendMessage() {
     setChatState(true);
     
     const ql = query.toLowerCase();
+    const qn = ql.replace(/[^a-z0-9\s]/g, ' ');
     const localMap = (
         () => {
-            if (/\b(hi|hello|hey|good\s*morning|good\s*evening)\b/.test(ql)) return "Hi! How can I help you today?";
-            if (/\b(how\s*are\s*you)\b/.test(ql)) return "I'm doing well and ready to help. What would you like to know?";
-            if (/\b(who\s*are\s*you|what\s*are\s*you)\b/.test(ql)) return "I'm the website assistant for Ruan Coetzee. Ask me about skills, projects, or how to get in touch.";
-            if (/\b(thank\s*you|thanks)\b/.test(ql)) return "You're welcome! Anything else I can help with?";
-            if (/\b(what\s*can\s*you\s*do)\b/.test(ql)) return "I can answer questions about Ruan's background, skills, services, and contact details.";
+            if (/\b(hi|hello|hey|good\s*morning|good\s*evening)\b/.test(qn)) return "Hi! How can I help you today?";
+            if (/\b(how\s*are\s*you)\b/.test(qn)) return "I'm doing well and ready to help. What would you like to know?";
+            if (/\b(who\s*are\s*you|what\s*are\s*you)\b/.test(qn)) return "I'm the website assistant for Ruan Coetzee. Ask me about skills, projects, or how to get in touch.";
+            if (/\b(thank\s*you|thanks)\b/.test(qn)) return "You're welcome! Anything else I can help with?";
+            if (/\b(what\s*can\s*you\s*do)\b/.test(qn)) return "I can answer questions about Ruan's background, skills, services, and contact details.";
+
+            if (/favorite\s*color|colour/.test(qn)) return "My favorite color is blue.";
+            if (/his\s*favorite\s*color|ruan'?s\s*favorite\s*color/.test(qn)) return "Ruan’s favorite color is blue.";
+            if (/favorite\s*food|fav\s*food|sea\s*food/.test(qn)) return "My favorite food is seafood.";
+            if (/his\s*favorite\s*food|ruan'?s\s*favorite\s*food/.test(qn)) return "Ruan’s favorite food is seafood.";
+            if (/how\s*old\s*are\s*you|what\s*is\s*your\s*age|age\b/.test(qn)) {
+                const age = new Date().getFullYear() - 1993;
+                return `I was born in 1993.\n\nThat makes me about ${age} years old.`;
+            }
+            if (/how\s*old\s*(is|\bis)\s*ruan|ruan'?s\s*age/.test(qn)) {
+                const age = new Date().getFullYear() - 1993;
+                return `Ruan was born in 1993.\n\nThat makes him about ${age} years old.`;
+            }
+            if (/are\s*you\s*married|married\b|relationship\s*status|single\b|is\s*he\s*single/.test(qn)) return "I’m single at the moment.\n\nI have not been married and I have no children.";
+            if (/children|kids\b|does\s*he\s*have\s*children/.test(qn)) return "I have no children.";
+            if (/hobby|hobbies|what\s*do\s*you\s*like\s*to\s*do|what\s*are\s*his\s*hobbies/.test(qn)) return "My hobbies include gaming, hiking, gym, watching series, road trips, and having a braai.";
+            if (/job|work|looking\s*for\s*job|opportunit(y|ies)/.test(qn)) return "I make websites and I’m actively looking for new job opportunities.";
+            if (/skills|what\s*skills\s*does\s*ruan\s*have|ruan'?s\s*skills|his\s*skills/.test(qn)) return "Ruan’s core skills include modern web design and development, UI/UX, responsive layouts, branding and logo work, and geospatial/GIS experience.\n\nHe builds fast, clean websites and handles content, optimization, and deployment.";
+            if (/describe\s*yourself|personality|what\s*kind\s*of\s*person/.test(qn)) return "I’m calm, deep, and reliable.\n\nI love helping others, even when I don’t have much, and I’m hardworking and always willing to learn and try new things.";
+            if (/where\s*are\s*you|location|based\b|where\s*is\s*he\s*based/.test(qn)) return "I’m based in Stilbaai (Still Bay), Western Cape.\n\nI was born in Vanderbijlpark and moved to Stilbaai in 2023.";
+            if (/born|birth\s*place|where\s*were\s*you\s*born/.test(qn)) return "I was born in Vanderbijlpark, and I moved to Stilbaai in 2023.";
+            if (/contact|get\s*in\s*touch|email/.test(qn)) return "You can contact me via the website’s contact form or at ruan.coetzee2@gmail.com.";
+            if (/pricing|price|cost\b/.test(qn)) return "Pricing depends on scope and complexity.\n\nI provide a quote after an initial consultation.";
+            if (/timeline|how\s*long|turnaround/.test(qn)) return "I build websites quickly — typically 1 to 5 days, depending on how much work needs to be done.";
             return null;
         }
     )();
@@ -562,7 +587,7 @@ async function sendMessage() {
         try {
             const url = endpoints[0];
             const controller = new AbortController();
-            const timeoutMs = 45000;
+            const timeoutMs = 60000;
             const t = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch(url, {
                 method: 'POST',
@@ -604,7 +629,7 @@ async function sendMessage() {
                 throw new Error("Invalid response structure from proxy (missing 'text' field).");
             }
         } catch (error) {
-            console.error("Error during API call:", error);
+            console.warn("API call issue:", error);
             lastError = error;
             // Try next endpoint on first failure of current
             endpoints.shift();
@@ -674,18 +699,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tip) {
         setTimeout(() => {
             positionChatTip();
-            tip.textContent = 'Hi! How can I help you today?';
+            tip.textContent = 'Hi, how can I help you?';
             tip.classList.remove('hidden');
             setTimeout(() => { tip.classList.add('hidden'); }, 7000);
         }, 2500);
         setTimeout(() => {
             if (!isChatOpen) {
-                tip.textContent = 'Any Questions??';
+                tip.textContent = 'Questions about Ruan?';
                 positionChatTip();
                 tip.classList.remove('hidden');
                 setTimeout(() => { tip.classList.add('hidden'); }, 5000);
             }
-        }, 60000);
+        }, 20000);
         window.addEventListener('resize', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
         window.addEventListener('scroll', () => { if (!tip.classList.contains('hidden')) positionChatTip(); });
     }
