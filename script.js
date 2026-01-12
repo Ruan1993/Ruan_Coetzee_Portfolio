@@ -1,548 +1,424 @@
-// ------------------------------------------------------------------
-// --- Tailwind Configuration (Reference) ---
-// ------------------------------------------------------------------
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: "#3B82F6",
-        secondary: "#10B981",
-        "dark-bg": "#0A0A0A",
-        "card-bg": "#18181B",
-      },
-    },
-  },
-};
-
-// ------------------------------------------------------------------
-// --- DOMContentLoaded: All UI + Form Logic ---
-// ------------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  // -----------------------------
-  // --- VANTA.NET Background ---
-  // -----------------------------
-  VANTA.NET({
-    el: "#vanta-bg",
-    mouseControls: true,
-    touchControls: true,
-    minHeight: 200.0,
-    minWidth: 200.0,
-    scale: 1.0,
-    scaleMobile: 1.0,
-    color: 0x3b82f6,
-    backgroundColor: 0x0a0a0a,
-    points: 10.0,
-    maxDistance: 20.0,
-    spacing: 15.0,
-  });
-
-  // -----------------------------
-  // --- Feather Icons ---
-  // -----------------------------
-  feather.replace();
-
-  // -----------------------------
-  // --- Mobile Menu Toggle ---
-  // -----------------------------
-  const menuToggle = document.getElementById("menu-toggle");
-  if (menuToggle) {
-    menuToggle.addEventListener("click", () => {
-      const mobileMenu = document.getElementById("mobile-menu");
-      if (mobileMenu) mobileMenu.classList.toggle("hidden");
-    });
-  }
-
-  // -----------------------------
-  // --- Scroll Progress Bar ---
-  // -----------------------------
-  window.addEventListener("scroll", () => {
-    const scrollTop = window.scrollY;
-    const docHeight =
-      document.documentElement.scrollHeight - window.innerHeight;
-    const scrollPercent = (scrollTop / docHeight) * 100;
-    const progress = document.getElementById("scroll-progress");
-    if (progress) progress.style.width = scrollPercent + "%";
-  });
-
-  // -----------------------------
-  // --- Modal Setup Function ---
-  // -----------------------------
-  const setupModal = (openBtnId, closeBtnId, overlayId, contentId) => {
-    const openBtn = document.getElementById(openBtnId);
-    const closeBtn = document.getElementById(closeBtnId);
-    const modalOverlay = document.getElementById(overlayId);
-    const modalContent = document.getElementById(contentId);
-    if (!openBtn || !modalOverlay) return;
-
-    const showModal = () => {
-      modalOverlay.classList.remove("hidden");
-      modalOverlay.style.display = "flex";
-      void modalOverlay.offsetWidth;
-      modalOverlay.style.pointerEvents = "auto";
-      modalOverlay.classList.add("opacity-100");
-      modalContent.classList.remove("scale-95");
-      modalContent.classList.add("scale-100");
-      document.body.style.overflow = "hidden";
-    };
-
-    const hideModal = () => {
-      modalOverlay.style.pointerEvents = "none";
-      modalOverlay.classList.remove("opacity-100");
-      modalContent.classList.remove("scale-100");
-      modalContent.classList.add("scale-95");
-      setTimeout(() => {
-        modalOverlay.classList.add("hidden");
-        modalOverlay.style.display = "none";
-        document.body.style.overflow = "";
-        modalOverlay.style.pointerEvents = "";
-      }, 300);
-    };
-
-    openBtn.addEventListener("click", showModal);
-    if (closeBtn) closeBtn.addEventListener("click", hideModal);
-    modalOverlay.addEventListener("click", (e) => {
-      if (e.target === modalOverlay) hideModal();
-    });
-  };
-
-  // Example modals
-  setupModal(
-    "open-ai-courses-modal",
-    "close-ai-courses-modal",
-    "ai-courses-modal-overlay",
-    "ai-courses-modal-content"
-  );
-  setupModal(
-    "open-web-sql-courses-modal",
-    "close-web-sql-courses-modal",
-    "web-sql-courses-modal-overlay",
-    "web-sql-courses-modal-content"
-  );
-
-  // -----------------------------
-  // --- Tabs Logic ---
-  // -----------------------------
-  const tabs = document.querySelectorAll("[data-tab-target]");
-  const tabContents = document.querySelectorAll("[data-tab-content]");
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      const target = document.querySelector(tab.dataset.tabTarget);
-      tabContents.forEach((content) => content.classList.remove("active"));
-      tabs.forEach((t) => {
-        t.classList.remove("active");
-        t.setAttribute("aria-selected", "false");
-      });
-      if (target) target.classList.add("active");
-      tab.classList.add("active");
-      tab.setAttribute("aria-selected", "true");
-      feather.replace();
-    });
-  });
-
-  // -----------------------------
-  // --- Back To Top Button ---
-  // -----------------------------
-  const backToTopBtn = document.getElementById("back-to-top-btn");
-  if (backToTopBtn) {
-    const toggleBackToTop = () => {
-      if (window.scrollY > 300) backToTopBtn.classList.add("show");
-      else backToTopBtn.classList.remove("show");
-    };
-    window.addEventListener("scroll", toggleBackToTop);
-    toggleBackToTop();
-    backToTopBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-  // -----------------------------
-  // --- Custom Cursor + Trail ---
-  // -----------------------------
-  const cursorDot = document.getElementById("custom-cursor-dot");
-  const cursorTrail = document.getElementById("cursor-trail");
-  let mouseX = 0,
-    mouseY = 0,
-    currentTrailX = 0,
-    currentTrailY = 0,
-    easing = 0.05;
-
-  const createParticles = (x, y) => {
-    const numParticles = 25;
-    const colors = ["#ffffff", "#3B82F6", "#60A5FA", "#93C5FD"];
-    for (let i = 0; i < numParticles; i++) {
-      const particle = document.createElement("div");
-      particle.classList.add("click-particle");
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      const size = Math.random() * 4 + 1;
-      particle.style.width = particle.style.height = `${size}px`;
-      const angle = Math.random() * 2 * Math.PI;
-      const distance = Math.random() * 80 + 30;
-      const duration = Math.random() * 0.4 + 0.3;
-      const targetX = x + Math.cos(angle) * distance;
-      const targetY = y + Math.sin(angle) * distance;
-      setTimeout(() => {
-        particle.style.transition = `transform ${duration}s cubic-bezier(0.2,0.8,0.4,1), opacity ${duration}s ease-out`;
-        particle.style.transform = `translate(${targetX - x}px, ${targetY - y}px) rotate(${Math.random()*360}deg) scale(0.1)`;
-        particle.style.opacity = "0";
-      }, 10);
-      setTimeout(() => particle.remove(), duration * 1000 + 100);
-      document.body.appendChild(particle);
-    }
-  };
-
-  if (cursorDot && cursorTrail) {
-    currentTrailX = mouseX;
-    currentTrailY = mouseY;
-    const updateCursor = () => {
-      cursorDot.style.transform = `translate3d(${mouseX - 8}px, ${mouseY - 8}px, 0)`;
-      currentTrailX += (mouseX - currentTrailX) * easing;
-      currentTrailY += (mouseY - currentTrailY) * easing;
-      cursorTrail.style.left = `${currentTrailX}px`;
-      cursorTrail.style.top = `${currentTrailY}px`;
-      requestAnimationFrame(updateCursor);
-    };
-    document.addEventListener("mousemove", (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      const target = e.target.closest("a, button, .card-hover, .tab-button, [onclick]");
-      if (target) {
-        cursorDot.classList.add("active");
-        cursorTrail.style.width = cursorTrail.style.height = "100px";
-      } else {
-        cursorDot.classList.remove("active");
-        cursorTrail.style.width = cursorTrail.style.height = "70px";
-      }
-    });
-    document.addEventListener("mousedown", (e) => createParticles(e.clientX, e.clientY));
-    updateCursor();
-  }
-
-  // -----------------------------
-  // --- Magnetic Buttons ---
-  // -----------------------------
-  const magnetize = (target, strength = 0.5) => {
-    document.addEventListener("mousemove", (e) => {
-      const rect = target.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      const maxDistance = 200;
-      if (distance < maxDistance) {
-        const power = 1 - distance / maxDistance;
-        target.style.transform = `translate(${deltaX * strength * power}px, ${deltaY * strength * power}px)`;
-      } else target.style.transform = "translate(0px,0px)";
-    });
-    target.addEventListener("mouseleave", () => (target.style.transform = "translate(0px,0px)"));
-  };
-  document.querySelectorAll("a.magnetic-button, button.magnetic-button").forEach((btn) => magnetize(btn, 0.4));
-
-  // -----------------------------
-  // --- Ripple Effect (Fixed) ---
-  // -----------------------------
-  document
-    .querySelectorAll(
-      "button:not(#toggle-progress-details), a.magnetic-button, button#open-ai-courses-modal, button#open-web-sql-courses-modal"
-    )
-    .forEach((button) => {
-      if (window.getComputedStyle(button).position === "static") button.style.position = "relative";
-      button.style.overflow = "hidden";
-
-      button.addEventListener("click", function (e) {
-        // Skip form buttons to avoid preventing submit
-        if (this.closest("form")) return;
-
-        const href = this.getAttribute("href");
-        const target = this.getAttribute("target");
-        const isInternalLink = href && href.startsWith("#");
-        const isExternalLink = href && target === "_blank";
-
-        if (isInternalLink || isExternalLink || href === null) e.preventDefault();
-
-        const ripple = document.createElement("span");
-        ripple.classList.add("ripple");
-        this.appendChild(ripple);
-        const rect = e.target.closest("button, a.magnetic-button").getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const size = Math.max(rect.width, rect.height) * 1.5;
-        ripple.style.width = ripple.style.height = `${size}px`;
-        ripple.style.left = `${x - size / 2}px`;
-        ripple.style.top = `${y - size / 2}px`;
-
-        setTimeout(() => {
-          ripple.remove();
-          if (this.tagName === "A" && href && !this.classList.contains("tab-button")) {
-            if (isInternalLink) {
-              const targetEl = document.querySelector(href);
-              if (targetEl) targetEl.scrollIntoView({ behavior: "smooth" });
-            } else if (isExternalLink) window.open(href, "_blank");
-          }
-        }, 600);
-      });
-    });
-
-  // -----------------------------
-// --- Web3Forms Submission Handler (Updated) ---
-// -----------------------------
-const contactForm = document.getElementById('contact-form');
-const formStatus = document.getElementById('form-status');
-
-if (contactForm) {
-    contactForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // 1. Loading State and Setup
-        const submitButton = contactForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.innerHTML;
-        
-        submitButton.innerHTML = 'Sending...';
-        submitButton.disabled = true;
-        formStatus.classList.add('hidden');
-        formStatus.classList.remove("text-green-400", "text-red-400"); // Clean up previous status
-
-        const formData = new FormData(contactForm);
-        
-        try {
-            const response = await fetch(contactForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'Accept': 'application/json' }
-            });
-
-            const result = await response.json();
-
-            // 2. Web3Forms Success Check
-            if (result.success) {
-                formStatus.textContent = '✅ Message Sent! Thank you.';
-                formStatus.classList.add("text-green-400");
-                contactForm.reset(); // Clear the form inputs
-            } else {
-                // Handle API failure (e.g., rate limit, missing field)
-                formStatus.textContent = '❌ Error: ' + (result.message || 'Something went wrong.');
-                formStatus.classList.add("text-red-400");
-            }
-        } catch (err) {
-            // 3. Network Failure
-            formStatus.textContent = "❌ Network error. Please try again.";
-            formStatus.classList.add("text-red-400");
-        } finally {
-            // 4. Restore State
-            formStatus.classList.remove('hidden');
-            submitButton.innerHTML = originalButtonText;
-            submitButton.disabled = false;
-        }
-    });
-}
-});
-
-// ======================================================
-// === START: CHATBOT JAVASCRIPT (ADDED) ===
-// ======================================================
-
-// --- API & State Setup ---
-const API_KEY = "dummy_key_required_by_script"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
-const MODEL_NAME = "gemini-1.5-flash-latest"; // Updated to latest Flash model
-const API_URL = '/.netlify/functions/chat-proxy';
-
-// --- !!! SECURITY WARNING !!! ---
-// Placing your API_KEY directly in client-side JavaScript is insecure.
-// Anyone visiting your site can view the source code and steal your key.
-// For a real-world application, this API call should be made from a secure backend server.
-// For personal or test projects, you MUST restrict your API key in the Google Cloud
-// Console to only work on your specific website domain (which you have already done).
-
-let websiteContent; // Will be populated on init
-let chatContainer; // Will be assigned in init
-let userInput; // Will be assigned in init
-let sendButton; // Will be assigned in init
-let loadingIndicator; // Will be assigned in init
-let mainChatWindow; // Will be assigned in init
-let isChatOpen = false;
-
-// --- Utility Functions ---
-
-function toggleChatWindow() {
-    if (!mainChatWindow) return; // Safety check
-    isChatOpen = !isChatOpen;
-    if (isChatOpen) {
-        mainChatWindow.classList.remove('translate-y-full', 'opacity-0');
-        mainChatWindow.classList.add('translate-y-0', 'opacity-100');
-        if (userInput) userInput.focus();
-    } else {
-        mainChatWindow.classList.remove('translate-y-0', 'opacity-100');
-        mainChatWindow.classList.add('translate-y-full', 'opacity-0');
-    }
-}
-
-function createMessageElement(text, sender) {
-    const isUser = sender === 'user';
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
-
-    const bubble = document.createElement('div');
-    bubble.className = `max-w-xs md:max-w-md p-3 rounded-lg shadow-md text-sm ${
-        isUser ? 'bg-user-bubble text-gray-900 rounded-br-none' : 'bg-ai-bubble text-gray-800 rounded-tl-none'
-    }`;
-    
-    if (!isUser) {
-         const senderLabel = document.createElement('p');
-         senderLabel.className = 'font-semibold text-xs mb-1 text-primary-blue';
-         senderLabel.textContent = 'Bloop'; // Updated name
-         bubble.appendChild(senderLabel);
-    }
-
-    const content = document.createElement('p');
-    // Sanitize text to prevent HTML injection - a simple textContent is safest
-    content.textContent = text; 
-    bubble.appendChild(content);
-
-    messageDiv.appendChild(bubble);
-    return messageDiv;
-}
-
-function appendMessage(text, sender) {
-    if (!chatContainer) return;
-    const messageElement = createMessageElement(text, sender);
-    chatContainer.appendChild(messageElement);
-    chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
-}
-
-function setChatState(isLoading) {
-    if (sendButton) sendButton.disabled = isLoading;
-    if (userInput) userInput.disabled = isLoading;
-    if (loadingIndicator) loadingIndicator.classList.toggle('hidden', !isLoading);
-    if (isLoading && chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-}
-
-// --- Core Chat Functionality ---
-
-// Retrieve the training content from the textarea
-function initializeChatbot() {
-    // Assign elements
-    chatContainer = document.getElementById('chat-container');
-    userInput = document.getElementById('user-input');
-    sendButton = document.getElementById('send-button');
-    loadingIndicator = document.getElementById('loading-indicator');
-    mainChatWindow = document.getElementById('main-chat-window');
-    
-    const contentInput = document.getElementById('website-content-input');
-    if (contentInput) {
-        websiteContent = contentInput.value;
-    } else {
-        console.error("Chatbot training textarea not found!");
-        websiteContent = ""; // Set to empty to prevent errors
-    }
-    
-    const trainingArea = document.getElementById('training-area');
-    if (trainingArea) {
-        trainingArea.style.display = 'none'; // Hide the training area completely
-    }
-    
-    // Add event listeners for chatbot elements
-    if (sendButton) {
-        sendButton.onclick = sendMessage;
-    }
-    if (userInput) {
-        userInput.onkeydown = (event) => {
-            if (event.key === 'Enter' && !sendButton.disabled) {
-                sendMessage();
-            }
-        };
-    }
-    
-    // Assign the toggle button click
-    const toggleButton = document.getElementById('chat-toggle-button');
-    if (toggleButton) {
-        toggleButton.onclick = toggleChatWindow;
-    }
-}
-
-async function sendMessage() {
-    const query = userInput.value.trim();
-    if (!query || (websiteContent && websiteContent.trim() === "")) {
-        if (websiteContent && websiteContent.trim() === "") {
-            appendMessage("I haven't been trained yet. Please add content to the training area.", 'ai');
-        }
-        return;
-    }
-
-    // 1. Display user message and clear input
-    appendMessage(query, 'user');
-    userInput.value = '';
-    
-    // 2. Set loading state
-    setChatState(true);
-
-    // Prepare API payload (No longer needs the full Gemini structure, just the raw data for the proxy)
-    // NOTE: This is simpler than the old payload in your script.js!
-    const payload = {
-        query: query,
-        websiteContent: websiteContent 
-    };
-
-    const MAX_RETRIES = 3;
-    let retryCount = 0;
-
-    while (retryCount < MAX_RETRIES) {
-        try {
-            // Check for API key is no longer needed since the key is hidden, but can be left as a dummy check.
-            if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY") {
-                 // Throwing this error won't stop the proxy call, but is a safe guard.
-            }
-        
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload) // Send simple JSON data
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Proxy error! status: ${response.status} ${response.statusText} - ${errorText}`);
-            }
-
-            const result = await response.json();
-            
-            // *** CRITICAL FIX HERE ***
-            if (result.text) { // Check for the simple 'text' field returned by the proxy
-                appendMessage(result.text, 'ai');
-                setChatState(false);
-                return; // Success, exit function
-            } else {
-                throw new Error("Invalid response structure from proxy (missing 'text' field).");
-            }
-        } catch (error) {
-            console.error("Error during API call:", error);
-            retryCount++;
-            if (retryCount >= MAX_RETRIES) {
-                // Failed after max retries
-                let friendlyError = "I apologize, but I am unable to connect to the AI service right now. Please try again later.";
-                if (error.message.includes("400") || error.message.includes("Proxy error")) {
-                    friendlyError = "The chatbot service encountered a server error. Please try again.";
+/* ------------------------------------------------------------------
+   1. TAILWIND CONFIGURATION
+------------------------------------------------------------------ */
+if (typeof window !== "undefined" && window.tailwind) {
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    brand: {
+                        blue: '#3B82F6',
+                        purple: '#8B5CF6',
+                        dark: '#020617'
+                    }
                 }
-                appendMessage(friendlyError, 'ai');
-                setChatState(false);
-                return;
             }
-            // Optional: Add exponential backoff delay
-            const delay = Math.pow(2, retryCount) * 1000;
-            await new Promise(resolve => setTimeout(resolve, delay));
         }
-    }
+    };
 }
 
-// Initialize the chatbot AFTER the main DOMContentLoaded has finished
-// We wrap it in its own event listener to be safe.
-document.addEventListener('DOMContentLoaded', () => {
-    initializeChatbot();
-});
+/* ------------------------------------------------------------------
+   2. GLOBAL PAGINATION LOGIC
+   (Moved outside DOMContentLoaded so filterProjects can access it)
+------------------------------------------------------------------ */
+let currentCategoryPager = 'web';
+// Track the starting index for each category independently
+const currentStart = { web: 0, branding: 0, qr: 0, posters: 0 };
+let pagerAuto = null;
+function startPagerAuto() {
+    if (pagerAuto) clearInterval(pagerAuto);
+    pagerAuto = setInterval(() => nextPage(), 6000);
+}
 
-// ======================================================
-// === END: CHATBOT JAVASCRIPT ===
-// ======================================================
+function getVisibleCount() {
+    // 3 images on Desktop, 1 on Mobile
+    return window.innerWidth >= 1024 ? 3 : 1;
+}
+
+function getCategoryItems(cat) {
+    return Array.from(document.querySelectorAll(`.project-item.${cat}`));
+}
+
+function renderPage(cat) {
+    const items = getCategoryItems(cat);
+    const visible = getVisibleCount();
+
+    // Ensure we don't scroll past the end
+    const maxStart = Math.max(0, items.length - visible);
+    
+    // Safety check boundaries
+    if (currentStart[cat] > maxStart) currentStart[cat] = maxStart;
+    if (currentStart[cat] < 0) currentStart[cat] = 0;
+
+    const start = currentStart[cat];
+
+    // Toggle visibility
+    items.forEach((item, idx) => {
+        if (idx >= start && idx < start + visible) {
+            item.style.display = 'block';
+            // Small delay for fade-in effect
+            setTimeout(() => item.style.opacity = '1', 50);
+        } else {
+            item.style.display = 'none';
+            item.style.opacity = '0';
+        }
+    });
+}
+
+function nextPage() {
+    const items = getCategoryItems(currentCategoryPager);
+    const visible = getVisibleCount();
+    if (!items.length) return;
+    const maxStart = Math.max(0, items.length - visible);
+    if (currentStart[currentCategoryPager] < maxStart) {
+        currentStart[currentCategoryPager]++;
+    } else {
+        currentStart[currentCategoryPager] = 0; // wrap to beginning
+    }
+    renderPage(currentCategoryPager);
+}
+
+function prevPage() {
+    const items = getCategoryItems(currentCategoryPager);
+    const visible = getVisibleCount();
+    if (!items.length) return;
+    const maxStart = Math.max(0, items.length - visible);
+    if (currentStart[currentCategoryPager] > 0) {
+        currentStart[currentCategoryPager]--;
+    } else {
+        currentStart[currentCategoryPager] = maxStart; // wrap to last window
+    }
+    renderPage(currentCategoryPager);
+}
+
+// This function is called directly by the HTML onclick events
+function filterProjects(category, btn) {
+    // 1. Reset Tab Styles
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-brand-blue/10', 'text-brand-blue', 'border-brand-blue');
+        b.classList.add('text-gray-400', 'border-gray-700');
+        b.classList.remove('tab-active');
+    });
+    
+    // 2. Activate Current Tab
+    if (btn) {
+        btn.classList.remove('text-gray-400', 'border-gray-700');
+        btn.classList.add('bg-brand-blue/10', 'text-brand-blue', 'border-brand-blue', 'tab-active');
+    }
+
+    // 3. Hide all items initially to clear the view
+    const allItems = document.querySelectorAll('.project-item');
+    allItems.forEach(item => item.style.display = 'none');
+
+    // 4. Set State & Render
+    currentCategoryPager = category;
+    currentStart[category] = 0; // always start from the first visible window
+    renderPage(category);
+    startPagerAuto();
+}
+
+/* ------------------------------------------------------------------
+   3. APP INITIALIZATION (Wait for DOM)
+------------------------------------------------------------------ */
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // -- Initialize Feather Icons & AOS --
+    feather.replace();
+    AOS.init({ once: true, offset: 100, duration: 800 });
+
+    
+
+    // -- Refresh Animations on Load/Resize --
+    const refreshAOS = () => { if (typeof AOS !== 'undefined') AOS.refreshHard(); };
+    window.addEventListener('load', refreshAOS);
+    window.addEventListener('resize', () => {
+        renderPage(currentCategoryPager); // Re-calculate visible items on resize
+        setTimeout(() => { if (typeof AOS !== 'undefined') AOS.refresh(); }, 100);
+    });
+
+    const yearSpan = document.getElementById('year');
+    if (yearSpan) {
+        const currentYear = new Date().getFullYear();
+        yearSpan.textContent = `2025-${currentYear}`;
+    }
+
+    // -- Mobile Menu --
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let ignoreNextDocClick = false;
+    if (mobileBtn && mobileMenu) {
+        const openMenu = () => {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('block');
+            mobileBtn.setAttribute('aria-expanded', 'true');
+        };
+        const closeMenu = () => {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('block');
+            mobileBtn.setAttribute('aria-expanded', 'false');
+        };
+
+        mobileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = mobileMenu.classList.contains('hidden');
+            if (isHidden) {
+                openMenu();
+                ignoreNextDocClick = true; // ignore the click that opened the menu
+                setTimeout(() => { ignoreNextDocClick = false; }, 50);
+            } else {
+                closeMenu();
+            }
+        });
+        // Also prevent touchstart bubbling on mobile
+        mobileBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+
+        document.addEventListener('click', (e) => {
+            if (ignoreNextDocClick) return;
+            if (!mobileMenu.classList.contains('hidden') && !mobileMenu.contains(e.target) && !mobileBtn.contains(e.target)) {
+                closeMenu();
+            }
+        });
+    }
+
+    // -- Navbar Scroll --
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        const btt = document.getElementById('back-to-top');
+        
+        if (window.scrollY > 50) {
+            nav.classList.add('bg-slate-900/90', 'shadow-lg');
+            nav.classList.remove('glass');
+        } else {
+            nav.classList.add('glass');
+            nav.classList.remove('bg-slate-900/90', 'shadow-lg');
+        }
+
+        if (btt) {
+            if (window.scrollY > 400) {
+                btt.classList.remove('opacity-0','pointer-events-none');
+                btt.classList.add('opacity-100');
+            } else {
+                btt.classList.add('opacity-0','pointer-events-none');
+                btt.classList.remove('opacity-100');
+            }
+        }
+    });
+
+    // -- Mobile Swipe for Selected Works --
+    const pagerEl = document.getElementById('projects-pager');
+    if (pagerEl) {
+        let startX = 0;
+        let startY = 0;
+        let movedX = 0;
+        let movedY = 0;
+        let tracking = false;
+        const threshold = 40;
+
+        pagerEl.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            startX = t.clientX;
+            startY = t.clientY;
+            movedX = 0;
+            movedY = 0;
+            tracking = true;
+        }, { passive: true });
+
+        pagerEl.addEventListener('touchmove', (e) => {
+            if (!tracking) return;
+            const t = e.changedTouches[0];
+            movedX = t.clientX - startX;
+            movedY = t.clientY - startY;
+        }, { passive: true });
+
+        pagerEl.addEventListener('touchend', () => {
+            if (!tracking) return;
+            tracking = false;
+            const absX = Math.abs(movedX);
+            const absY = Math.abs(movedY);
+            if (absX > absY && absX > threshold) {
+                if (movedX < 0) {
+                    nextPage();
+                } else {
+                    prevPage();
+                }
+                startPagerAuto();
+            }
+        });
+    }
+
+    const backToTop = document.getElementById('back-to-top');
+    if (backToTop) backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // -- Connect Carousel Arrows --
+    const projectsPrev = document.getElementById('projects-prev');
+    const projectsNext = document.getElementById('projects-next');
+
+    if (projectsPrev) projectsPrev.addEventListener('click', () => { prevPage(); startPagerAuto(); });
+    if (projectsNext) projectsNext.addEventListener('click', () => { nextPage(); startPagerAuto(); });
+
+    // -- Initialize Default Tab --
+    const defaultWebTab = document.getElementById('tab-web');
+    if (defaultWebTab) {
+        // Manually trigger click or call function to set initial state
+        filterProjects('web', defaultWebTab);
+        startPagerAuto();
+    }
+
+    // Remove any previously added fullscreen buttons (simplify interaction to click image)
+    document.querySelectorAll('.project-item button').forEach(b => {
+        if (b.innerHTML.includes('maximize')) b.remove();
+    });
+
+    // -- Web3Forms Logic --
+    const form = document.getElementById('agency-form');
+    const result = document.getElementById('form-result');
+    if (form && result) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+            
+            result.classList.remove('hidden');
+            result.innerHTML = "Sending...";
+            const submitBtn = form.querySelector('button');
+            submitBtn.disabled = true;
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: json
+            })
+            .then(async (response) => {
+                let json = await response.json();
+                if (response.status == 200) {
+                    result.innerHTML = "✅ Message sent successfully!";
+                    result.classList.add('text-green-500');
+                    form.reset();
+                } else {
+                    result.innerHTML = json.message;
+                    result.classList.add('text-red-500');
+                }
+            })
+            .catch(error => {
+                result.innerHTML = "Something went wrong!";
+                result.classList.add('text-red-500');
+            })
+            .then(() => {
+                submitBtn.disabled = false;
+                setTimeout(() => result.classList.add('hidden'), 5000);
+            });
+        });
+    }
+
+    // -- Remove broken poster images, if any --
+    document.querySelectorAll('.project-item.posters img').forEach(img => {
+        const removeItem = () => img.closest('.project-item')?.remove();
+        if (img.complete && img.naturalWidth === 0) removeItem();
+        img.addEventListener('error', removeItem, { once: true });
+    });
+
+    // -- Lightbox Logic --
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-image');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+
+    let galleryMap = { web: [], branding: [], qr: [], posters: [] };
+    let currentLbCategory = null;
+    let currentLbIndex = 0;
+
+    function openLightbox(cat, idx) {
+        currentLbCategory = cat;
+        currentLbIndex = idx;
+        updateLightbox();
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function buildGalleries() {
+        document.querySelectorAll('.project-item').forEach(item => {
+            const img = item.querySelector('img');
+            if (!img) return;
+
+            // Determine category
+            let cat = null;
+            if (item.classList.contains('web')) cat = 'web';
+            else if (item.classList.contains('branding')) cat = 'branding';
+            else if (item.classList.contains('qr')) cat = 'qr';
+            else if (item.classList.contains('posters')) cat = 'posters';
+
+            if (!cat) return;
+
+            const entry = { src: img.src, title: (item.querySelector('h3')?.textContent || '') };
+            const idx = galleryMap[cat].length;
+            galleryMap[cat].push(entry);
+
+            // Click behavior
+            if (cat === 'web') {
+                const linkEl = item.querySelector('a[href^="http"]');
+                if (linkEl) {
+                    img.style.cursor = 'pointer';
+                    item.style.cursor = 'pointer';
+                    const openLink = (e) => { e.preventDefault(); window.open(linkEl.href, '_blank', 'noopener'); };
+                    img.addEventListener('click', openLink);
+                    item.addEventListener('click', openLink);
+                }
+            } else {
+                img.style.cursor = 'zoom-in';
+                item.style.cursor = 'zoom-in';
+                const openImage = (e) => { e.preventDefault(); openLightbox(cat, idx); };
+                img.addEventListener('click', openImage);
+                item.addEventListener('click', openImage);
+            }
+
+            // Allow anchor clicks without triggering card click
+            item.querySelectorAll('a').forEach(a => a.addEventListener('click', (e) => e.stopPropagation()));
+        });
+    }
+
+    function openLightbox(category, index) {
+        currentLbCategory = category;
+        currentLbIndex = index;
+        updateLightbox();
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex'); // Ensure flex display
+        document.body.style.overflow = 'hidden';
+    }
+
+    function updateLightbox() {
+        if (!currentLbCategory) return;
+        const entry = galleryMap[currentLbCategory][currentLbIndex];
+        if (entry) {
+            lightboxImg.src = entry.src;
+            lightboxCaption.textContent = entry.title;
+        }
+    }
+
+    function closeLightbox() {
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    if (lightbox) {
+        buildGalleries();
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+        
+        // Lightbox Navigation
+        if (lightboxNext) lightboxNext.addEventListener('click', () => {
+            if (!currentLbCategory) return;
+            currentLbIndex = (currentLbIndex + 1) % galleryMap[currentLbCategory].length;
+            updateLightbox();
+        });
+        if (lightboxPrev) lightboxPrev.addEventListener('click', () => {
+            if (!currentLbCategory) return;
+            currentLbIndex = (currentLbIndex - 1 + galleryMap[currentLbCategory].length) % galleryMap[currentLbCategory].length;
+            updateLightbox();
+        });
+    }
+});
