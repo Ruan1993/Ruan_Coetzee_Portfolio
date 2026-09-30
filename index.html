@@ -11,6 +11,20 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://api.web3forms.com" crossorigin>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J4LV7MF372"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      const analyticsPageLocation = window.location.origin + window.location.pathname;
+      gtag('js', new Date());
+      gtag('config', 'G-J4LV7MF372', {
+        send_page_view: false,
+        page_location: analyticsPageLocation
+      });
+      gtag('event', 'page_view', {
+        page_location: analyticsPageLocation
+      });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>

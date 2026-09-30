@@ -17,6 +17,58 @@ if (typeof window !== "undefined" && window.tailwind) {
 }
 
 // ------------------------------------------------------------------
+// --- Privacy-safe analytics events ---
+// ------------------------------------------------------------------
+const trackAnalyticsEvent = (eventName, parameters) => {
+  try {
+    if (typeof window.gtag === "function") {
+      window.gtag("event", eventName, parameters);
+    }
+  } catch (_) {
+    // Analytics must never interrupt the visitor's action.
+  }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    if (!link) return;
+
+    const projectCard = link.closest(".project-card");
+    if (projectCard) {
+      const projectName = projectCard.querySelector("h3")?.textContent.trim();
+      trackAnalyticsEvent(
+        "portfolio_project_clicked",
+        projectName ? { project_name: projectName } : undefined
+      );
+      return;
+    }
+
+    const href = link.getAttribute("href") || "";
+    if (href === "certificates/Ruan_Coetzee_CV_2025.pdf") {
+      trackAnalyticsEvent("cv_clicked");
+      return;
+    }
+
+    let platform;
+    try {
+      const hostname = new URL(link.href, window.location.href).hostname
+        .toLowerCase()
+        .replace(/^www\./, "");
+      platform = {
+        "github.com": "github",
+        "linkedin.com": "linkedin",
+        "facebook.com": "facebook",
+      }[hostname];
+    } catch (_) {
+      return;
+    }
+
+    if (platform) trackAnalyticsEvent("social_clicked", { platform });
+  });
+});
+
+// ------------------------------------------------------------------
 // --- DOMContentLoaded: All UI + Form Logic ---
 // ------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
@@ -321,8 +373,9 @@ if (contactForm) {
             const result = await response.json();
 
             // 2. Web3Forms Success Check
-            if (result.success) {
-                formStatus.textContent = '✅ Message Sent! Thank you.';
+        if (result.success) {
+             trackAnalyticsEvent('enquiry_submitted');
+                formStatus.textContent = '✅ Message Sent! Thank you.';
                 formStatus.classList.add("text-green-400");
                 contactForm.reset(); // Clear the form inputs
             } else {
