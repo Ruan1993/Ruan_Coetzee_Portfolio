@@ -2,6 +2,9 @@ __pycache__/
 *.pyc
 server/verify_output.txt
 .env
+.env.*
+!.env.example
 .DS_Store
 Thumbs.db
 node_modules/
+dist/
