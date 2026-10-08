@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { BLOP_CONTEXT, BLOP_STARTER_QUESTIONS, BLOP_WELCOME_MESSAGE } from '../data/blop';
-import { BlopRequestError, sendBlopMessage, trimChatHistory } from '../services/blop';
+import { BLOP_CONTEXT, BLOP_SECTION_LINKS, BLOP_STARTER_QUESTIONS, BLOP_WELCOME_MESSAGE } from '../data/blop';
+import { BlopRequestError, getLocalSafetyResponse, sendBlopMessage, trimChatHistory } from '../services/blop';
 import type { ChatHistoryItem, ChatMessage } from '../types/chat';
 
 const welcomeMessage: ChatMessage = { id: 'blop-welcome', role: 'model', text: BLOP_WELCOME_MESSAGE };
@@ -66,6 +66,13 @@ export function BlopChat() {
     setHistory(requestHistory);
 
     try {
+      const safetyResponse = getLocalSafetyResponse(query);
+      if (safetyResponse) {
+        const modelHistory: ChatHistoryItem = { role: 'model', parts: [{ text: safetyResponse }] };
+        setHistory(trimChatHistory([...requestHistory, modelHistory]));
+        setMessages((current) => [...current, makeMessage('model', safetyResponse)]);
+        return;
+      }
       const reply = await sendBlopMessage({ endpoint, query, context: BLOP_CONTEXT, history: requestHistory });
       const modelHistory: ChatHistoryItem = { role: 'model', parts: [{ text: reply }] };
       setHistory((current) => trimChatHistory([...current, modelHistory]));
@@ -149,6 +156,9 @@ export function BlopChat() {
           />
           <button type="submit" disabled={isLoading || !input.trim()}>{isLoading ? 'Sending…' : 'Send'}</button>
         </form>
+        <nav className="blop-navigation" aria-label="Portfolio sections">
+          {BLOP_SECTION_LINKS.map((link) => <a href={link.href} key={link.href}>{link.label}</a>)}
+        </nav>
       </section>
     </aside>
   );

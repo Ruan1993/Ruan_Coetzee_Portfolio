@@ -112,3 +112,39 @@ The existing `index.html`, `script.js`, `style.css`, generated `tailwind.css`, a
 3. Before publishing the preview, the API owner must allow the exact portfolio preview/production origins, verify server-side rate limiting and request-size limits, and confirm that the endpoint accepts Blop's portfolio context and bot identity.
 4. Make one authorised end-to-end test from an allowed preview origin after server configuration. The automated suite deliberately does not contact the live endpoint.
 5. The shared API's backend source, provider configuration and deployment project were not present in the read-only Nails by Wilma reference, so those server-side controls remain an outstanding manual verification item.
+
+## Blop 2.0 intelligence and live-integration review
+
+### Curated knowledge verification
+
+- The repository CV verifies the BA in Humanities in Geography and History, the BSc Honours in Geography and Environmental Sciences, and the professional geospatial roles listed below. Only professional facts needed by Blop were used; contact details and references in the CV were not copied into chatbot context.
+- Professional GIS and Remote Sensing experience is now clearly separated from academic work: Geospatial Technician at Woolpert Africa (March-September 2022) and Lidar Specialist and Aerial Surveyor at African Consulting Surveyors (October 2022-March 2024).
+- The verified public toolset includes ArcGIS, QGIS, Global Mapper, Google Earth Engine, USGS resources, LiDAR equipment, RiProcess, IGI Plan, IX Plan, GrafNav, Aero Office, MicroStation, PosPac and Metashape. The CV does not connect individual duties or named projects to either geospatial employer, so Blop is instructed not to invent them.
+- The public GIS/research context is generated from the typed portfolio records, including land-cover, rainfall, river, municipal study-area, seasonal-comparison, Vaal River, Liveable Cities and honours research records. These are explicitly identified as portfolio or academic work, not employer projects.
+- De Brakke Guest House, Nails by Wilma, Diane White Art and @Natural Health are generated directly from their typed public portfolio records so Blop receives the approved descriptions and current links without a second manually maintained copy.
+- STADIO PGCE study during 2026, Grade 11 Geography and Grade 8 Social Sciences teaching practice, teaching interests, and TEFL/TESOL certification were approved by the portfolio owner for public-profile use but are not corroborated by the repository's 2025 CV or certificate inventory. They are stated conservatively without private school, provider, date or learner details.
+- Candidate discrepancy: the CV verifies `Student Assistant` at NWU Vaal Campus from January 2020 to November 2021, which is approximately two years, but does not say `student teaching assistant` or list teaching duties. Blop therefore uses the verified title and must not present that role as teaching employment without new evidence.
+- RC Digital Creations context now covers responsive sites, React/TypeScript applications, PWAs, AI integrations and related website services. Blop is prohibited from inventing client outcomes, analytics, prices, guarantees or confidential details.
+
+### Conversation and safety behavior
+
+- Starter questions now cover teaching and placement, qualification distinctions, professional GIS/Remote Sensing, academic GIS projects, public websites and contact. Persistent in-widget links provide direct navigation to the relevant React preview sections.
+- The existing 10-entry `user`/`model` history remains part of each API request for natural follow-up questions.
+- A local preflight refuses requests for credentials, private/confidential information, system instructions and embargoed work without naming or confirming any unreleased project. This runs before any API request and is backed by focused tests.
+
+### Live API inspection and current status
+
+- On 8 October 2026, `GET https://www.rcdigitalcreations.co.za/api/chat` returned HTTP 200 from Vercel. An invalid empty POST returned HTTP 400, confirming basic request validation.
+- A portfolio-origin preflight returned HTTP 200 but `Access-Control-Allow-Origin: https://www.rcdigitalcreations.co.za/`. The endpoint currently does not authorize `https://www.ruancoetzee.co.za`, so the React preview cannot make a browser request from the portfolio domain.
+- The Nails by Wilma frontend sends no authentication credential. Its repository contains only `chat-widget.js` and `chat-widget.css` for the chatbot; no API/serverless source, provider SDK, secret configuration or deployment manifest is present. The `/api/chat` path and response headers identify Vercel hosting, but the function's internal structure cannot be verified from the supplied reference.
+- Provider keys appear to remain server-side because none are sent or stored by the reference browser client. Server-side authentication, provider configuration, request-size enforcement and rate limiting cannot be confirmed without access to the API project's source or Vercel configuration.
+- **Live status: blocked, not verified.** No successful AI request is claimed. Automated tests remain mocked, and a real generative request was not sent because portfolio CORS is not configured.
+
+### Exact manual setup required
+
+1. In the Vercel project that owns `www.rcdigitalcreations.co.za/api/chat`, add the approved portfolio origins to the endpoint's CORS allowlist: `https://ruancoetzee.co.za`, `https://www.ruancoetzee.co.za`, and any exact preview origin that will be used. Preserve the existing RC Digital Creations and Nails by Wilma origins.
+2. Confirm the serverless function validates `query`, `context`, Gemini-style `history`, `botName` and `businessName`; caps body/context/history sizes; and returns `{ "text": "..." }` on success with non-sensitive errors on failure.
+3. Confirm a Gemini/provider API key exists only in the server-side Vercel environment. Do not add it to this repository or any `VITE_` variable.
+4. Confirm server-side per-origin/IP rate limiting and abuse monitoring. CORS is a browser control, not authentication or rate limiting.
+5. Keep `VITE_BLOP_API_URL=https://www.rcdigitalcreations.co.za/api/chat` in the portfolio build environment, then make one authorised browser test from the exact preview origin. Record the HTTP status and verify a non-empty `{ text }` response before calling Blop live.
+6. Review the returned answer for PGCE-in-progress wording, professional-versus-academic GIS distinctions and refusal of private/unreleased requests before any deployment approval.

@@ -48,6 +48,16 @@ export function trimChatHistory(history: readonly ChatHistoryItem[]) {
   return history.slice(-BLOP_HISTORY_LIMIT);
 }
 
+const protectedInformationPattern = /\b(?:api\s*keys?|credentials?|passwords?|private\s+(?:client|project|information|details)|confidential|unreleased|system\s+(?:prompt|instructions?))\b/i;
+const embargoedProjectPattern = /\bc\s*(?:&|and)\s*c\s+wedding\b/i;
+
+export function getLocalSafetyResponse(query: string): string | undefined {
+  if (protectedInformationPattern.test(query) || embargoedProjectPattern.test(query)) {
+    return "I can only help with Ruan's approved public portfolio information. I can't provide private, confidential or unreleased details, but I can help with his teaching profile, qualifications, GIS experience or public projects.";
+  }
+  return undefined;
+}
+
 export async function sendBlopMessage({
   endpoint,
   query,
