@@ -1,0 +1,64 @@
+import type { GallerySummary, NavigationItem, PortfolioFocus, Qualification } from '../types/portfolio';
+
+export const navigationItems: readonly NavigationItem[] = [
+  { href: '#home', label: 'Home' },
+  { href: '#teaching', label: 'Teaching' },
+  { href: '#development', label: 'Web development' },
+  { href: '#geography', label: 'Geography & GIS' },
+  { href: '#qualifications', label: 'Qualifications' },
+  { href: '/index.html#contact', label: 'Contact' },
+];
+
+export const portfolioFocuses: readonly PortfolioFocus[] = [
+  {
+    area: 'teaching',
+    eyebrow: 'Primary career direction',
+    title: 'Teaching Geography, History and Social Sciences',
+    description: 'Preparing for classroom practice through a PGCE that is currently in progress, supported by subject knowledge in Geography and History.',
+    highlights: ['FET Geography and History', 'Senior Phase Social Sciences', 'Teaching practice and professional development'],
+  },
+  {
+    area: 'development',
+    eyebrow: 'Secondary professional focus',
+    title: 'Web development and applied AI',
+    description: 'Designing and building practical websites and digital tools through RC Digital Creations, including client work and AI integrations.',
+    highlights: ['Responsive websites', 'Client portfolio projects', 'Applications and AI integrations'],
+    link: { href: '/index.html#projects', label: 'View the complete existing project gallery' },
+  },
+  {
+    area: 'geography',
+    eyebrow: 'Research and technical foundation',
+    title: 'Geography, GIS and research',
+    description: 'A geography background grounded in spatial thinking, research, remote sensing and cartographic work.',
+    highlights: ['GIS and remote sensing', 'Academic research', 'Maps and visual communication'],
+    link: { href: '/index.html#projects', label: 'Open the existing GIS and maps gallery' },
+  },
+];
+
+export const qualifications: readonly Qualification[] = [
+  {
+    title: 'Postgraduate Certificate in Education (PGCE)',
+    institution: 'In progress',
+    status: 'in-progress',
+    detail: 'Teaching qualification currently underway; completion is not claimed.',
+  },
+  {
+    title: 'BSc Honours in Geography and Environmental Sciences',
+    institution: 'North-West University',
+    status: 'completed',
+    detail: 'Completed in 2021 and awarded with distinction in 2022.',
+  },
+  {
+    title: 'BA in Humanities: Geography and History',
+    institution: 'North-West University',
+    status: 'completed',
+    detail: 'Completed in 2021.',
+  },
+];
+
+export const gallerySummaries: readonly GallerySummary[] = [
+  { name: 'Client websites', itemCount: 4, legacyAnchor: '/index.html#projects' },
+  { name: 'GIS maps', itemCount: 11, legacyAnchor: '/index.html#projects' },
+  { name: 'Research projects', itemCount: 2, legacyAnchor: '/index.html#projects' },
+  { name: 'Design galleries', itemCount: 19, legacyAnchor: '/index.html#projects' },
+];

@@ -5,3 +5,4 @@ server/verify_output.txt
 .DS_Store
 Thumbs.db
 node_modules/
+dist/
