@@ -1,11 +1,13 @@
-import type { GallerySummary, NavigationItem, PortfolioFocus, Qualification } from '../types/portfolio';
+import type { NavigationItem, PortfolioFocus, Qualification } from '../types/portfolio';
 
 export const navigationItems: readonly NavigationItem[] = [
   { href: '#home', label: 'Home' },
   { href: '#teaching', label: 'Teaching' },
   { href: '#development', label: 'Web development' },
   { href: '#geography', label: 'Geography & GIS' },
+  { href: '#projects', label: 'Projects' },
   { href: '#qualifications', label: 'Qualifications' },
+  { href: '#certificates', label: 'Certificates' },
   { href: '/index.html#contact', label: 'Contact' },
 ];
 
@@ -54,11 +56,4 @@ export const qualifications: readonly Qualification[] = [
     status: 'completed',
     detail: 'Completed in 2021.',
   },
-];
-
-export const gallerySummaries: readonly GallerySummary[] = [
-  { name: 'Client websites', itemCount: 4, legacyAnchor: '/index.html#projects' },
-  { name: 'GIS maps', itemCount: 11, legacyAnchor: '/index.html#projects' },
-  { name: 'Research projects', itemCount: 2, legacyAnchor: '/index.html#projects' },
-  { name: 'Design galleries', itemCount: 19, legacyAnchor: '/index.html#projects' },
 ];

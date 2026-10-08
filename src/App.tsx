@@ -1,9 +1,13 @@
 import heroImage from '../images/IMG-20231219-WA0021 (1).jpg';
+import { CertificateGallery } from './components/CertificateGallery';
 import { FocusCard } from './components/FocusCard';
+import { ProjectGallery } from './components/ProjectGallery';
 import { QualificationList } from './components/QualificationList';
 import { SiteFooter } from './components/SiteFooter';
 import { SiteHeader } from './components/SiteHeader';
-import { gallerySummaries, navigationItems, portfolioFocuses, qualifications } from './data/portfolio';
+import { certificateGroups } from './data/certificates';
+import { legacyProjects, projectCategories } from './data/legacyPortfolio';
+import { navigationItems, portfolioFocuses, qualifications } from './data/portfolio';
 
 export function App() {
   return (
@@ -32,26 +36,15 @@ export function App() {
           ))}
         </section>
 
+        <ProjectGallery categories={projectCategories} projects={legacyProjects} />
+
         <section className="section" id="qualifications" aria-labelledby="qualifications-heading">
           <p className="eyebrow">Verified academic foundation</p>
           <h2 id="qualifications-heading">Qualifications</h2>
           <QualificationList items={qualifications} />
-          <a className="text-link" href="/index.html#certificates">View the existing certificates section</a>
         </section>
 
-        <section className="section" aria-labelledby="gallery-heading">
-          <p className="eyebrow">Migration inventory</p>
-          <h2 id="gallery-heading">Existing galleries retained</h2>
-          <p>The original galleries remain available while each dataset and interaction is migrated into reusable React components.</p>
-          <div className="gallery-summary">
-            {gallerySummaries.map((gallery) => (
-              <a key={gallery.name} href={gallery.legacyAnchor}>
-                <strong>{gallery.itemCount}</strong>
-                <span>{gallery.name}</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <CertificateGallery groups={certificateGroups} />
       </main>
       <SiteFooter />
     </div>

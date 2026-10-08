@@ -53,3 +53,12 @@ The existing `index.html`, `script.js`, `style.css`, generated `tailwind.css`, a
 4. Port Blop's client UI against the unchanged Flask contract, updating its training content for the teaching-first profile.
 5. Replace CDN scripts with pinned npm packages or lightweight native alternatives, then test reduced-motion behavior.
 6. Run link, accessibility, responsive and visual-regression checks before promoting React to `index.html`.
+
+## Completed catalog migration slice
+
+- All 36 legacy public project/gallery records are represented in typed React data: 4 websites, 11 GIS maps, 2 research documents, 9 logos, 8 posters/stickers and 2 QR designs.
+- All 10 certificate document records are represented: 1 degree, 5 AI Engineering certificates and 4 Web Development/SQL certificates.
+- Original titles, descriptions, categories, action labels, external URLs and legacy path strings are retained. Several original HTML paths use Windows backslashes; `legacyPath` preserves those strings while React uses forward-slash, Vite-generated asset URLs for cross-platform builds.
+- The Summer vs Winter card has inconsistent legacy paths: its wrapping link contains a doubled slash while its image and action link contain one slash. The canonical one-slash asset path is retained in typed data.
+- The original `GEOG 671 Mini Dissertation - R. Coetzee 30195543.pdf` reference is currently missing from the working tree. The user-owned `- Copy.pdf` file was not substituted, renamed or committed.
+- `Still Greens 5.png`, the CV PDF and the profile portrait exist as source assets but are not gallery/certificate records in the legacy project and certificate sections. The portrait remains used by the React hero; the other two were not newly published as catalog items.
