@@ -22,6 +22,7 @@
     "build:css": "tailwindcss -c tailwind.config.cjs -i ./src/tailwind.css -o ./tailwind.css --minify",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "verify:content": "node scripts/verify-content-parity.mjs"
+    "verify:content": "node scripts/verify-content-parity.mjs",
+    "test:contact": "node scripts/test-contact-form.mjs"
   }
 }

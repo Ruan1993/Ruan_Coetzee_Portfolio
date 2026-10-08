@@ -8,7 +8,7 @@ export const navigationItems: readonly NavigationItem[] = [
   { href: '#projects', label: 'Projects' },
   { href: '#qualifications', label: 'Qualifications' },
   { href: '#certificates', label: 'Certificates' },
-  { href: '/index.html#contact', label: 'Contact' },
+  { href: '#contact', label: 'Contact' },
 ];
 
 export const portfolioFocuses: readonly PortfolioFocus[] = [

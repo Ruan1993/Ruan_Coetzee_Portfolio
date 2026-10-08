@@ -1,5 +1,6 @@
 import heroImage from '../images/IMG-20231219-WA0021 (1).jpg';
 import { CertificateGallery } from './components/CertificateGallery';
+import { ContactForm } from './components/ContactForm';
 import { FocusCard } from './components/FocusCard';
 import { ProjectGallery } from './components/ProjectGallery';
 import { QualificationList } from './components/QualificationList';
@@ -45,6 +46,7 @@ export function App() {
         </section>
 
         <CertificateGallery groups={certificateGroups} />
+        <ContactForm />
       </main>
       <SiteFooter />
     </div>

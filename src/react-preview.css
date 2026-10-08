@@ -80,6 +80,21 @@ h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.0
 .certificate-list { padding-left: 1.35rem; }
 .certificate-list li { margin: .85rem 0; color: #d4d4d8; }
 .certificate-list a { color: #93c5fd; }
+.contact-section { max-width: 48rem; margin-inline: auto; }
+.contact-form { display: grid; gap: 1.25rem; margin-top: 2rem; padding: clamp(1.35rem, 4vw, 2.25rem); border: 1px solid #3f3f46; border-radius: 1rem; background: rgb(24 24 27 / 88%); box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 25%); }
+.form-field { display: grid; gap: .5rem; }
+.form-field label { color: #d4d4d8; font-size: .9rem; font-weight: 750; }
+.form-field input, .form-field textarea { width: 100%; border: 1px solid #52525b; border-radius: .65rem; padding: .85rem 1rem; color: white; background: #0a0a0a; font: inherit; }
+.form-field textarea { resize: vertical; min-height: 8rem; }
+.form-field input::placeholder, .form-field textarea::placeholder { color: #71717a; }
+.form-field input:disabled, .form-field textarea:disabled { cursor: not-allowed; opacity: .65; }
+.form-field input:invalid:not(:placeholder-shown), .form-field textarea:invalid:not(:placeholder-shown) { border-color: #f87171; }
+.submit-button { width: 100%; cursor: pointer; }
+.submit-button:disabled { cursor: wait; opacity: .7; }
+.form-status { margin: 0; padding: .8rem 1rem; border: 1px solid #52525b; border-radius: .65rem; text-align: center; font-size: .9rem; font-weight: 750; }
+.form-status--loading { color: #bfdbfe; background: rgb(30 64 175 / 22%); }
+.form-status--success { color: #86efac; background: rgb(22 101 52 / 22%); }
+.form-status--error { color: #fca5a5; background: rgb(153 27 27 / 22%); }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; width: min(1180px, calc(100% - 2.5rem)); margin: 6rem auto 0; padding: 2rem 0; border-top: 1px solid #27272a; color: #71717a; font-size: .85rem; }
 
 @media (max-width: 800px) {

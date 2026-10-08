@@ -62,3 +62,18 @@ The existing `index.html`, `script.js`, `style.css`, generated `tailwind.css`, a
 - The Summer vs Winter card has inconsistent legacy paths: its wrapping link contains a doubled slash while its image and action link contain one slash. The canonical one-slash asset path is retained in typed data.
 - The original `GEOG 671 Mini Dissertation - R. Coetzee 30195543.pdf` reference is currently missing from the working tree. The user-owned `- Copy.pdf` file was not substituted, renamed or committed.
 - `Still Greens 5.png`, the CV PDF and the profile portrait exist as source assets but are not gallery/certificate records in the legacy project and certificate sections. The portrait remains used by the React hero; the other two were not newly published as catalog items.
+
+## Completed React contact-form slice
+
+- The isolated React preview now has a reusable, typed Web3Forms contact form with the same name, email, optional phone and message fields as the legacy form.
+- Submission remains multipart `FormData` to `https://api.web3forms.com/submit` with the existing subject, sender name and `reply_to` behavior. Successful submissions reset the form and preserve the `enquiry_submitted` analytics event when `gtag` is available.
+- The component adds a synchronous duplicate-submission guard, disabled controls while loading, native required/email/telephone-pattern validation, autocomplete attributes, `aria-busy`, and polite/assertive live feedback for loading, success and error states.
+- The React form reads `VITE_WEB3FORMS_ACCESS_KEY`. Vite embeds `VITE_` values in public browser JavaScript, so this is public configuration rather than a secret. `.env.example` contains only a placeholder; `.env` and `.env.*` remain ignored except for the example file.
+- Automated tests mock all network behavior and cover the exact payload, success, provider error, missing configuration and network failure. They never submit to Web3Forms.
+
+### Manual Web3Forms actions required before preview publication
+
+1. In the Web3Forms dashboard, create or select the key intended for this portfolio and restrict its allowed domains to the exact production and approved preview domains (including `ruancoetzee.co.za` and `www.ruancoetzee.co.za` as applicable).
+2. Add `VITE_WEB3FORMS_ACCESS_KEY` to a local ignored `.env.local` file for development and to the hosting provider's build environment for a future approved deployment. Do not commit either value.
+3. Review Web3Forms spam protection, rate limits and notification destination, then make one authorised manual submission from an allowed domain.
+4. The legacy HTML still contains its previous browser-exposed key because the legacy form was required to remain unchanged. Rotate or retire that key when production switches to the verified React form.
