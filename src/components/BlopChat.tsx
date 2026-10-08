@@ -20,7 +20,9 @@ export function BlopChat() {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const requestInFlight = useRef(false);
-  const endpoint = import.meta.env.VITE_BLOP_API_URL ?? '';
+  const endpoint = import.meta.env.DEV
+    ? '/__blop_dev/api/chat'
+    : (import.meta.env.VITE_BLOP_API_URL || 'https://www.rcdigitalcreations.co.za/api/chat');
 
   useEffect(() => {
     if (isOpen) inputRef.current?.focus();
@@ -73,7 +75,7 @@ export function BlopChat() {
         setMessages((current) => [...current, makeMessage('model', safetyResponse)]);
         return;
       }
-      const reply = await sendBlopMessage({ endpoint, query, context: BLOP_CONTEXT, history: requestHistory });
+      const reply = await sendBlopMessage({ endpoint, query, context: BLOP_CONTEXT, history });
       const modelHistory: ChatHistoryItem = { role: 'model', parts: [{ text: reply }] };
       setHistory((current) => trimChatHistory([...current, modelHistory]));
       setMessages((current) => [...current, makeMessage('model', reply)]);

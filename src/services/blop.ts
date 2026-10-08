@@ -1,7 +1,7 @@
 import type { ChatHistoryItem, ChatRequest } from '../types/chat';
 
 export const BLOP_HISTORY_LIMIT = 10;
-export const BLOP_MAX_ATTEMPTS = 5;
+export const BLOP_MAX_ATTEMPTS = 2;
 export const BLOP_REQUEST_TIMEOUT_MS = 20_000;
 
 interface BlopApiResponse {
@@ -107,7 +107,7 @@ export async function sendBlopMessage({
         lastError = new BlopRequestError('Blop could not connect. Please check your connection and try again.', 'network');
       }
 
-      const retryable = ['rate-limit', 'timeout', 'server', 'network'].includes(lastError.kind);
+      const retryable = ['timeout', 'server', 'network'].includes(lastError.kind);
       if (!retryable || attempt === maxAttempts - 1) throw lastError;
       await wait(2 ** (attempt + 1) * 1_000);
     } finally {

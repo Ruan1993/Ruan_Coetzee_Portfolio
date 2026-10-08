@@ -6,6 +6,21 @@ const root = resolve(import.meta.dirname, '..');
 const server = await createServer({ root, server: { middlewareMode: true }, appType: 'custom' });
 
 try {
+  // Verify that local requests use the server-side proxy, not production browser CORS.
+  const devProxy = server.config.server.proxy?.['/__blop_dev/api/chat'];
+  assert.ok(devProxy, 'Vite dev proxy is configured');
+  assert.equal(devProxy.target, 'https://www.rcdigitalcreations.co.za');
+  assert.equal(devProxy.rewrite('/__blop_dev/api/chat'), '/api/chat');
+  let configuredOrigin;
+  devProxy.configure({ on(event, handler) {
+    assert.equal(event, 'proxyReq');
+    handler({ setHeader(name, value) { if (name === 'Origin') configuredOrigin = value; } });
+  } });
+  assert.equal(configuredOrigin, 'https://ruancoetzee.co.za');
+  const { readFileSync } = await import('node:fs');
+  const chatComponent = readFileSync(resolve(root, 'src/components/BlopChat.tsx'), 'utf8');
+  assert.match(chatComponent, /import\.meta\.env\.DEV[\s\S]*?'\/__blop_dev\/api\/chat'/);
+
   const { BLOP_CONTEXT, BLOP_STARTER_QUESTIONS } = await server.ssrLoadModule('/src/data/blop.ts');
   const { BlopRequestError, getLocalSafetyResponse, sendBlopMessage, trimChatHistory } = await server.ssrLoadModule('/src/services/blop.ts');
 
@@ -63,22 +78,15 @@ try {
   assert.equal(capturedBody.context, BLOP_CONTEXT);
 
   let attempts = 0;
-  const delays = [];
-  const retryResponse = await sendBlopMessage({
-    endpoint: 'https://example.test/api/chat',
-    query: 'Retry safely',
-    context: BLOP_CONTEXT,
-    history: [],
-    maxAttempts: 3,
-    wait: async (milliseconds) => { delays.push(milliseconds); },
-    fetcher: async () => {
-      attempts += 1;
-      if (attempts < 3) return new Response('Busy', { status: 429 });
-      return new Response(JSON.stringify({ text: 'Ready now.' }));
-    },
-  });
-  assert.equal(retryResponse, 'Ready now.');
-  assert.deepEqual(delays, [2_000, 4_000]);
+  await assert.rejects(
+    sendBlopMessage({
+      endpoint: 'https://example.test/api/chat', query: 'Rate limit', context: BLOP_CONTEXT,
+      history: [], wait: async () => { throw new Error('Should not retry 429'); },
+      fetcher: async () => { attempts += 1; return new Response('Busy', { status: 429 }); },
+    }),
+    (error) => error instanceof BlopRequestError && error.kind === 'rate-limit',
+  );
+  assert.equal(attempts, 1);
 
   await assert.rejects(
     sendBlopMessage({ endpoint: '', query: 'Hello', context: BLOP_CONTEXT, history: [] }),
