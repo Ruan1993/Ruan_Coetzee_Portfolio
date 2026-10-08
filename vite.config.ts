@@ -39,7 +39,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        legacy: resolve(__dirname, 'index.html'),
+        main: resolve(__dirname, 'index.html'),
+        legacyBackup: resolve(__dirname, 'legacy.html'),
         reactPreview: resolve(__dirname, 'react-preview.html'),
       },
     },

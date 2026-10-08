@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { createServer } from 'vite';
 
 const root = resolve(import.meta.dirname, '..');
-const legacyHtml = readFileSync(resolve(root, 'index.html'), 'utf8');
+const legacyHtmlPath = existsSync(resolve(root, 'legacy.html')) ? 'legacy.html' : 'index.html';
+const legacyHtml = readFileSync(resolve(root, legacyHtmlPath), 'utf8');
 const expectedProjectCounts = {
   websites: 6,
   'gis-maps': 11,
@@ -56,7 +57,7 @@ try {
   const records = [...legacyProjects, ...certificates];
   const legacyParityRecords = records.filter((record) => record.origin !== 'verified-addition');
   const missingFromLegacyHtml = legacyParityRecords.filter((record) => !legacyHtml.includes(record.legacyPath));
-  assert(missingFromLegacyHtml.length === 0, `Typed records not found verbatim in index.html: ${missingFromLegacyHtml.map((record) => record.id).join(', ')}.`);
+  assert(missingFromLegacyHtml.length === 0, `Typed records not found verbatim in ${legacyHtmlPath}: ${missingFromLegacyHtml.map((record) => record.id).join(', ')}.`);
 
   const missingAssets = legacyParityRecords
     .filter((record) => !record.legacyPath.startsWith('http'))
