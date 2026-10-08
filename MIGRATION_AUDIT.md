@@ -77,3 +77,13 @@ The existing `index.html`, `script.js`, `style.css`, generated `tailwind.css`, a
 2. Add `VITE_WEB3FORMS_ACCESS_KEY` to a local ignored `.env.local` file for development and to the hosting provider's build environment for a future approved deployment. Do not commit either value.
 3. Review Web3Forms spam protection, rate limits and notification destination, then make one authorised manual submission from an allowed domain.
 4. The legacy HTML still contains its previous browser-exposed key because the legacy form was required to remain unchanged. Rotate or retire that key when production switches to the verified React form.
+
+## Verified website-listing update
+
+- The React preview now links Nails by Wilma to its verified canonical live domain, `https://nailsbywilma.co.za/`, while retaining the original Netlify URL in `legacyPath` for parity history.
+- De Brakke Guest House now links to `https://www.debrakke.co.za/`. Its description reflects the verified current implementation: a Vite-powered single-page guesthouse site with responsive accommodation content, image-led presentation, contact details and LodgingBusiness structured metadata.
+- Diane White Art was added at its verified live URL, `https://dianewhiteart.co.za/`, using the approved screenshot already published by RC Digital Creations.
+- @Natural Health was added at `https://www.at-naturalhealth.co.za/` after confirming an HTTP 200 response, complete public metadata and existing public promotion by RC Digital Creations. Its approved RC Digital Creations screenshot is reused remotely; no new source asset was invented or downloaded.
+- RC Website Insights is deferred because no verified public case study or sanitised, client-safe content was found. No analytics, credentials or client information were added.
+- C&C Wedding remains absent from public React content.
+- The React footer now states its actual stack: React 19, TypeScript, Vite and dedicated CSS. It separately identifies the unchanged legacy site as using Tailwind CSS and Vanta.js, without implying that production already uses React.

@@ -25,6 +25,7 @@ export type LegacyProjectCategory = 'websites' | 'gis-maps' | 'research' | 'logo
 
 export interface LegacyProjectRecord {
   id: string;
+  origin?: 'verified-addition';
   category: LegacyProjectCategory;
   title: string;
   description: string;

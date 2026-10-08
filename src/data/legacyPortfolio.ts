@@ -40,7 +40,7 @@ export const legacyProjects: readonly LegacyProjectRecord[] = [
   {
     id: 'nails-by-wilma-website', category: 'websites', title: 'Nails by Wilma',
     description: 'An elegant website for a nail salon featuring services, pricing, and booking information.',
-    tag: 'Web Design', legacyPath: 'https://nailsbywilma.netlify.app', href: 'https://nailsbywilma.netlify.app', actionLabel: 'Visit Website',
+    tag: 'Web Design', legacyPath: 'https://nailsbywilma.netlify.app', href: 'https://nailsbywilma.co.za/', actionLabel: 'Visit Website',
     media: { src: new URL('../../images/Nails_by_Wilma_Website.png', import.meta.url).href, alt: 'Nails by Wilma', fit: 'cover' },
   },
   {
@@ -51,9 +51,21 @@ export const legacyProjects: readonly LegacyProjectRecord[] = [
   },
   {
     id: 'de-brakke-guest-house-website', category: 'websites', title: 'De Brakke Guest House',
-    description: 'A comprehensive website for a guesthouse. The site is live while final client updates are being completed.',
-    tag: 'Web Development', legacyPath: 'https://debrakke.netlify.app/', href: 'https://debrakke.netlify.app/', actionLabel: 'Visit Website',
+    description: 'A Vite-powered single-page website for a Stilbaai West self-catering guesthouse, with responsive accommodation information, image-led presentation, contact details, and structured lodging metadata.',
+    tag: 'Vite Web Development', legacyPath: 'https://debrakke.netlify.app/', href: 'https://www.debrakke.co.za/', actionLabel: 'Visit Website',
     media: { src: new URL('../../images/De_Brakke_Guest_House_Website.png', import.meta.url).href, alt: 'De Brakke Guest House Website', fit: 'cover' },
+  },
+  {
+    id: 'diane-white-art-website', origin: 'verified-addition', category: 'websites', title: 'Diane White Art',
+    description: 'A fine art portfolio for South African artist Diane White, featuring vibrant artwork inspired by local landscapes and studio information for Still Bay and Somerset West.',
+    tag: 'Web Development', legacyPath: 'https://dianewhiteart.co.za/', href: 'https://dianewhiteart.co.za/', actionLabel: 'Visit Website',
+    media: { src: 'https://www.rcdigitalcreations.co.za/images/Websites/Diane_White_Art_Website.webp', alt: 'Diane White Art Website', fit: 'cover' },
+  },
+  {
+    id: 'at-natural-health-website', origin: 'verified-addition', category: 'websites', title: '@Natural Health',
+    description: 'A natural health business website with product discovery, advertising, WhatsApp ordering, and a virtual health market for the Overberg and Overstrand.',
+    tag: 'Web Development', legacyPath: 'https://www.at-naturalhealth.co.za/', href: 'https://www.at-naturalhealth.co.za/', actionLabel: 'Visit Website',
+    media: { src: 'https://www.rcdigitalcreations.co.za/images/Websites/Natural_Health_Website.webp', alt: '@Natural Health Website', fit: 'cover' },
   },
   {
     id: 'cities-of-the-world', category: 'gis-maps', title: 'Cities of the World', description: 'GEOG 321 project map.', tag: 'GIS Map', actionLabel: 'View Full Map',

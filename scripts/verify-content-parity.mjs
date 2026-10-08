@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 const root = resolve(import.meta.dirname, '..');
 const legacyHtml = readFileSync(resolve(root, 'index.html'), 'utf8');
 const expectedProjectCounts = {
-  websites: 4,
+  websites: 6,
   'gis-maps': 11,
   research: 2,
   logos: 9,
@@ -44,7 +44,7 @@ try {
   const { certificateGroups } = await server.ssrLoadModule('/src/data/certificates.ts');
   const certificates = certificateGroups.flatMap((group) => group.records);
 
-  assert(legacyProjects.length === 36, `Expected 36 project/gallery records, found ${legacyProjects.length}.`);
+  assert(legacyProjects.length === 38, `Expected 38 project/gallery records, found ${legacyProjects.length}.`);
   assert(certificates.length === 10, `Expected 10 certificate records, found ${certificates.length}.`);
 
   const actualProjectCounts = countBy(legacyProjects, 'category');
@@ -53,10 +53,11 @@ try {
   assert(JSON.stringify(actualCertificateCounts) === JSON.stringify(expectedCertificateCounts), `Certificate category counts differ: ${JSON.stringify(actualCertificateCounts)}.`);
 
   const records = [...legacyProjects, ...certificates];
-  const missingFromLegacyHtml = records.filter((record) => !legacyHtml.includes(record.legacyPath));
+  const legacyParityRecords = records.filter((record) => record.origin !== 'verified-addition');
+  const missingFromLegacyHtml = legacyParityRecords.filter((record) => !legacyHtml.includes(record.legacyPath));
   assert(missingFromLegacyHtml.length === 0, `Typed records not found verbatim in index.html: ${missingFromLegacyHtml.map((record) => record.id).join(', ')}.`);
 
-  const missingAssets = records
+  const missingAssets = legacyParityRecords
     .filter((record) => !record.legacyPath.startsWith('http'))
     .map((record) => ({ ...record, normalizedPath: localPathFromLegacyPath(record.legacyPath) }))
     .filter((record) => !existsSync(resolve(root, record.normalizedPath)));
@@ -66,7 +67,9 @@ try {
   const unexpectedWeddingRecords = records.filter((record) => /c\s*(?:&|and)\s*c\s+wedding/i.test(`${record.title} ${record.description ?? ''}`));
   assert(unexpectedWeddingRecords.length === 0, 'C&C Wedding must not be published before 9 January 2027.');
 
-  console.log(`Verified ${legacyProjects.length} project/gallery records and ${certificates.length} certificate records.`);
+  const additions = legacyProjects.filter((record) => record.origin === 'verified-addition');
+  assert(additions.length === 2, `Expected 2 verified additions, found ${additions.length}.`);
+  console.log(`Verified ${legacyParityRecords.length} legacy records, ${additions.length} approved additions, and ${certificates.length} certificate records.`);
   console.log(`Expected missing assets (${missingAssets.length}):`);
   for (const record of missingAssets) console.log(`- ${record.normalizedPath}`);
 } finally {
