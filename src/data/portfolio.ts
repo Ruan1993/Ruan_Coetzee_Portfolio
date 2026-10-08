@@ -2,6 +2,7 @@ import type { NavigationItem, PortfolioFocus, Qualification } from '../types/por
 
 export const navigationItems: readonly NavigationItem[] = [
   { href: '#home', label: 'Home' },
+  { href: '#journey', label: 'Journey' },
   { href: '#teaching', label: 'Teaching' },
   { href: '#development', label: 'Web development' },
   { href: '#geography', label: 'Geography & GIS' },
