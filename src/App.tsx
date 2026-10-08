@@ -1,4 +1,5 @@
 import heroImage from '../images/IMG-20231219-WA0021 (1).jpg';
+import { BlopChat } from './components/BlopChat';
 import { CertificateGallery } from './components/CertificateGallery';
 import { ContactForm } from './components/ContactForm';
 import { FocusCard } from './components/FocusCard';
@@ -49,6 +50,7 @@ export function App() {
         <ContactForm />
       </main>
       <SiteFooter />
+      <BlopChat />
     </div>
   );
 }

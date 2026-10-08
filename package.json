@@ -23,6 +23,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "verify:content": "node scripts/verify-content-parity.mjs",
-    "test:contact": "node scripts/test-contact-form.mjs"
+    "test:contact": "node scripts/test-contact-form.mjs",
+    "test:chat": "node scripts/test-blop-chat.mjs"
   }
 }

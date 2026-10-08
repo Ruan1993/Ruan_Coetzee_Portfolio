@@ -96,6 +96,31 @@ h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.0
 .form-status--success { color: #86efac; background: rgb(22 101 52 / 22%); }
 .form-status--error { color: #fca5a5; background: rgb(153 27 27 / 22%); }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; width: min(1180px, calc(100% - 2.5rem)); margin: 6rem auto 0; padding: 2rem 0; border-top: 1px solid #27272a; color: #71717a; font-size: .85rem; }
+.blop-chat { position: fixed; right: clamp(1rem, 3vw, 2rem); bottom: clamp(1rem, 3vw, 2rem); z-index: 30; }
+.blop-toggle { display: flex; align-items: center; gap: .55rem; margin-left: auto; border: 1px solid rgb(96 165 250 / 70%); border-radius: 99rem; padding: .8rem 1rem; color: white; background: #2563eb; box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 45%); font: inherit; font-weight: 800; cursor: pointer; }
+.blop-toggle:hover { background: #1d4ed8; }
+.blop-dialog { width: min(24rem, calc(100vw - 2rem)); height: min(38rem, calc(100vh - 7rem)); margin-bottom: .8rem; overflow: hidden; border: 1px solid rgb(96 165 250 / 60%); border-radius: 1rem; background: rgb(10 10 10 / 96%); box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 65%); backdrop-filter: blur(18px); }
+.blop-dialog:not([hidden]) { display: flex; flex-direction: column; }
+.blop-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem; color: white; background: linear-gradient(120deg, #2563eb, #047857); }
+.blop-header h2 { margin: 0; font-size: 1.3rem; letter-spacing: -.02em; }
+.blop-header p { margin: .15rem 0 0; color: #dbeafe; font-size: .78rem; }
+.blop-close { width: 2.25rem; height: 2.25rem; border: 1px solid rgb(255 255 255 / 35%); border-radius: 50%; color: white; background: rgb(255 255 255 / 12%); font-size: 1.45rem; line-height: 1; cursor: pointer; }
+.blop-messages { display: flex; flex: 1; flex-direction: column; gap: .8rem; overflow-y: auto; padding: 1rem; overscroll-behavior: contain; }
+.blop-message { max-width: 88%; padding: .75rem .85rem; border-radius: .8rem; color: #e4e4e7; background: #27272a; line-height: 1.5; white-space: pre-wrap; }
+.blop-message--user { align-self: flex-end; color: white; background: #1d4ed8; }
+.blop-message p { margin-bottom: 0; }
+.blop-message-label { margin-bottom: .3rem !important; color: #86efac; font-size: .72rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.blop-message--user .blop-message-label { color: #dbeafe; }
+.blop-starters { display: grid; gap: .5rem; }
+.blop-starters button { border: 1px solid #3f3f46; border-radius: .65rem; padding: .65rem .75rem; color: #bfdbfe; background: #18181b; font: inherit; font-size: .8rem; text-align: left; cursor: pointer; }
+.blop-starters button:hover { border-color: #3b82f6; background: rgb(59 130 246 / 14%); }
+.blop-typing, .blop-error { margin: 0; padding: .65rem .75rem; border-radius: .65rem; font-size: .82rem; }
+.blop-typing { color: #bfdbfe; background: rgb(30 64 175 / 22%); }
+.blop-error { color: #fecaca; background: rgb(153 27 27 / 28%); }
+.blop-form { display: flex; gap: .55rem; padding: .85rem; border-top: 1px solid #3f3f46; background: #18181b; }
+.blop-form input { min-width: 0; flex: 1; border: 1px solid #52525b; border-radius: 99rem; padding: .7rem .9rem; color: white; background: #0a0a0a; font: inherit; }
+.blop-form button { border: 0; border-radius: 99rem; padding: .7rem .9rem; color: white; background: #2563eb; font: inherit; font-weight: 800; cursor: pointer; }
+.blop-form button:disabled, .blop-form input:disabled { cursor: wait; opacity: .65; }
 
 @media (max-width: 800px) {
   .menu-button { display: block; }
@@ -106,8 +131,11 @@ h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.0
   .portrait { max-width: 20rem; grid-row: 1; }
   .focus-grid, .qualification-list, .project-grid, .certificate-grid { grid-template-columns: 1fr; }
   .site-footer { flex-direction: column; }
+  .blop-chat { right: .75rem; bottom: .75rem; }
+  .blop-dialog { width: calc(100vw - 1.5rem); height: min(34rem, calc(100dvh - 6.5rem)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .blop-dialog *, .blop-toggle { scroll-behavior: auto; transition: none !important; }
 }

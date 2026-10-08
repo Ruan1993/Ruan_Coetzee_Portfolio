@@ -87,3 +87,28 @@ The existing `index.html`, `script.js`, `style.css`, generated `tailwind.css`, a
 - RC Website Insights is deferred because no verified public case study or sanitised, client-safe content was found. No analytics, credentials or client information were added.
 - C&C Wedding remains absent from public React content.
 - The React footer now states its actual stack: React 19, TypeScript, Vite and dedicated CSS. It separately identifies the unchanged legacy site as using Tailwind CSS and Vanta.js, without implying that production already uses React.
+
+## Blop 2.0 React preview slice
+
+### Reference architecture findings
+
+- The Nails by Wilma chatbot is a browser widget that posts to the shared server-side endpoint `https://www.rcdigitalcreations.co.za/api/chat`; the read-only project contains no provider SDK, API route, serverless function or provider credential.
+- Its request contract is `{ query, context, history, botName, businessName }`. History uses Gemini-compatible `user`/`model` roles with `parts: [{ text }]`, is capped at the latest 10 entries, and successful responses return `{ text }`.
+- The client retries transient failures with exponential backoff. Provider integration, secret environment variables, server-side rate limiting and hosting configuration belong to the API service and cannot be audited from the Nails by Wilma frontend repository alone.
+- The reference widget supplies a curated business context rather than scraping arbitrary page content. Blop 2.0 follows that pattern with a portfolio-specific, public-only context and explicit accuracy/privacy rules.
+
+### Portfolio implementation
+
+- The isolated React preview now mounts a reusable Blop chat component; legacy `index.html`, `script.js`, legacy Blop and the Flask/Render backend remain unchanged.
+- The responsive widget includes a labelled non-modal dialog, keyboard-accessible controls, Escape-to-close with focus restoration, starter questions, a live conversation region, bounded conversation history, loading/error states and a synchronous duplicate-request guard.
+- The request service preserves the proven endpoint contract, five-attempt exponential backoff and 10-entry history limit. It adds a 20-second per-attempt timeout, validates `{ text }`, and distinguishes configuration, rate-limit, timeout, server and network failures.
+- Blop's curated context is teaching-first and states that the PGCE is in progress. It covers the approved qualifications, TEFL/TESOL, Geography/GIS, RC Digital Creations and public portfolio projects without including private details or unreleased work.
+- Automated tests use mocked responses only and cover payload shape, bounded history, retry timing, missing endpoint configuration, invalid responses and the PGCE/unreleased-content safeguards. No live AI request is made.
+
+### Environment and deployment requirements
+
+1. Set `VITE_BLOP_API_URL` to the approved public chat endpoint. This value is embedded in browser JavaScript and is not secret.
+2. Keep Gemini/provider API keys exclusively on the server hosting `/api/chat`. Never place a provider key in a `VITE_` variable or this repository.
+3. Before publishing the preview, the API owner must allow the exact portfolio preview/production origins, verify server-side rate limiting and request-size limits, and confirm that the endpoint accepts Blop's portfolio context and bot identity.
+4. Make one authorised end-to-end test from an allowed preview origin after server configuration. The automated suite deliberately does not contact the live endpoint.
+5. The shared API's backend source, provider configuration and deployment project were not present in the read-only Nails by Wilma reference, so those server-side controls remain an outstanding manual verification item.
