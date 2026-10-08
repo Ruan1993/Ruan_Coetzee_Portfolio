@@ -71,10 +71,11 @@ h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; letter-spacing: -.0
 .project-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; }
 .project-card-footer a { color: #93c5fd; font-size: .85rem; font-weight: 750; text-align: right; }
 .project-tag { padding: .3rem .55rem; border-radius: 99rem; color: #a7f3d0; background: rgb(6 95 70 / 35%); font-size: .7rem; font-weight: 800; white-space: nowrap; }
-.certificate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-.certificate-card { padding: clamp(1.35rem, 3vw, 2rem); border: 1px solid #3f3f46; border-radius: 1rem; background: rgb(24 24 27 / 82%); }
+.certificate-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.certificate-card { display: flex; min-width: 0; flex-direction: column; padding: clamp(1.35rem, 3vw, 2rem); border: 1px solid #3f3f46; border-radius: 1rem; background: rgb(24 24 27 / 82%); }
 .certificate-card > p:not(.certificate-status) { color: var(--muted); line-height: 1.7; }
 .certificate-status { color: #93c5fd; font-size: .78rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.certificate-card > .text-link { margin-top: auto; padding-top: 1rem; }
 .certificate-card details { margin-top: 1.25rem; }
 .certificate-card summary { color: var(--green); font-weight: 750; cursor: pointer; }
 .certificate-list { padding-left: 1.35rem; }

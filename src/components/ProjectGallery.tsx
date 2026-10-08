@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { LegacyProjectCategory, LegacyProjectRecord, ProjectCategoryDefinition } from '../types/portfolio';
 
 interface ProjectGalleryProps {
@@ -47,17 +47,29 @@ export function ProjectGallery({ categories, projects }: ProjectGalleryProps) {
   const visibleProjects = projects.filter((project) => project.category === activeCategory);
   const activeLabel = categories.find((category) => category.id === activeCategory)?.label ?? '';
 
+  useEffect(() => {
+    const selectLinkedCategory = () => {
+      const linkedCategory = categories.find((category) => window.location.hash === `#projects-${category.id}`);
+      if (linkedCategory) setActiveCategory(linkedCategory.id);
+    };
+
+    selectLinkedCategory();
+    window.addEventListener('hashchange', selectLinkedCategory);
+    return () => window.removeEventListener('hashchange', selectLinkedCategory);
+  }, [categories]);
+
   return (
     <section className="section" id="projects" aria-labelledby="projects-heading">
-      <p className="eyebrow">Complete legacy catalog</p>
+      <p className="eyebrow">Work across disciplines</p>
       <h2 id="projects-heading">Projects and galleries</h2>
-      <p>Every public project and gallery record from the existing portfolio is represented here.</p>
+      <p>Explore websites, GIS maps, research, identity design, posters and QR work in one place.</p>
       <div className="filter-list" role="group" aria-label="Filter projects by category">
         {categories.map((category) => {
           const count = projects.filter((project) => project.category === category.id).length;
           return (
             <button
               key={category.id}
+              id={`projects-${category.id}`}
               type="button"
               className={activeCategory === category.id ? 'filter-button is-active' : 'filter-button'}
               aria-pressed={activeCategory === category.id}

@@ -45,10 +45,11 @@ export interface ProjectCategoryDefinition {
   label: string;
 }
 
-export type CertificateCategory = 'degree' | 'ai-engineering' | 'web-development-sql';
+export type CertificateCategory = 'ba-degree' | 'bsc-honours-degree' | 'ai-engineering' | 'web-development-sql';
 
 export interface CertificateRecord {
   id: string;
+  origin?: 'verified-addition';
   category: CertificateCategory;
   title: string;
   legacyPath: string;

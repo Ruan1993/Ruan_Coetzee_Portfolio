@@ -7,7 +7,7 @@ interface CertificateGalleryProps {
 export function CertificateGallery({ groups }: CertificateGalleryProps) {
   return (
     <section className="section" id="certificates" aria-labelledby="certificates-heading">
-      <p className="eyebrow">Legacy certificate catalog</p>
+      <p className="eyebrow">Qualifications and continued learning</p>
       <h2 id="certificates-heading">Certificates</h2>
       <div className="certificate-grid">
         {groups.map((group) => (

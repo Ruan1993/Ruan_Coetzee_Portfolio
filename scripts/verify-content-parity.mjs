@@ -13,7 +13,8 @@ const expectedProjectCounts = {
   'qr-designs': 2,
 };
 const expectedCertificateCounts = {
-  degree: 1,
+  'ba-degree': 1,
+  'bsc-honours-degree': 1,
   'ai-engineering': 5,
   'web-development-sql': 4,
 };
@@ -45,7 +46,7 @@ try {
   const certificates = certificateGroups.flatMap((group) => group.records);
 
   assert(legacyProjects.length === 38, `Expected 38 project/gallery records, found ${legacyProjects.length}.`);
-  assert(certificates.length === 10, `Expected 10 certificate records, found ${certificates.length}.`);
+  assert(certificates.length === 11, `Expected 11 certificate records, found ${certificates.length}.`);
 
   const actualProjectCounts = countBy(legacyProjects, 'category');
   const actualCertificateCounts = countBy(certificates, 'category');

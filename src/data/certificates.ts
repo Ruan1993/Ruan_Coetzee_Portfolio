@@ -2,15 +2,28 @@ import type { CertificateGroup } from '../types/portfolio';
 
 export const certificateGroups: readonly CertificateGroup[] = [
   {
-    id: 'degree',
-    title: 'BSc Honours Degree',
+    id: 'ba-degree',
+    title: 'BA Degree — Humanities (Geography and History)',
     status: 'Completed 2021',
-    description: 'Geography and Environmental Sciences from NWU Vaal.',
+    description: 'North-West University',
     records: [
       {
-        id: 'bsc-honours-degree', category: 'degree', title: 'BSc Honours Degree',
+        id: 'ba-degree', origin: 'verified-addition', category: 'ba-degree', title: 'BA Degree',
+        legacyPath: 'certificates/Degree Certificates/BA Degree - Ruan Coetzee.pdf',
+        href: new URL('../../certificates/Degree Certificates/BA Degree - Ruan Coetzee.pdf', import.meta.url).href,
+      },
+    ],
+  },
+  {
+    id: 'bsc-honours-degree',
+    title: 'BSc Honours Degree — Geography and Environmental Sciences',
+    status: 'Awarded 2022 · With distinction',
+    description: 'North-West University',
+    records: [
+      {
+        id: 'bsc-honours-degree', category: 'bsc-honours-degree', title: 'BSc Honours Degree',
         legacyPath: 'certificates/BSc%20Honours%20Degree%20-%20Ruan%20Coetzee%20.pdf',
-        href: new URL('../../certificates/BSc Honours Degree - Ruan Coetzee .pdf', import.meta.url).href,
+        href: new URL('../../certificates/Degree Certificates/BSc Honours Degree - Ruan Coetzee.pdf', import.meta.url).href,
       },
     ],
   },

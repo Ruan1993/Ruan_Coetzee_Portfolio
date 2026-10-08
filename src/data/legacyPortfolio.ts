@@ -141,7 +141,7 @@ export const legacyProjects: readonly LegacyProjectRecord[] = [
   {
     id: 'geog-671-dissertation', category: 'research', title: 'GEOG 671 Mini Dissertation', description: 'Honours level mini-dissertation research.', actionLabel: 'View PDF',
     legacyPath: 'Portfolio Content (For Website)/GIS & Remote Sensing Projects/Research Projects/GEOG 671 Mini Dissertation - R. Coetzee 30195543.pdf',
-    href: '/Portfolio%20Content%20(For%20Website)/GIS%20&%20Remote%20Sensing%20Projects/Research%20Projects/GEOG%20671%20Mini%20Dissertation%20-%20R.%20Coetzee%2030195543.pdf',
+    href: new URL('../../Portfolio Content (For Website)/GIS & Remote Sensing Projects/Research Projects/GEOG 671 Mini Dissertation - Ruan Coetzee (Verified).pdf', import.meta.url).href,
   },
   {
     id: 'cc-auto-repairs-logo', category: 'logos', title: 'CC Auto Repairs', description: 'Logo design for auto repair business.', tag: 'Logo Design', actionLabel: 'View Full Image',

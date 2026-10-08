@@ -25,7 +25,7 @@ export const portfolioFocuses: readonly PortfolioFocus[] = [
     title: 'Web development and applied AI',
     description: 'Designing and building practical websites and digital tools through RC Digital Creations, including client work and AI integrations.',
     highlights: ['Responsive websites', 'Client portfolio projects', 'Applications and AI integrations'],
-    link: { href: '/index.html#projects', label: 'View the complete existing project gallery' },
+    link: { href: '#projects-websites', label: 'Explore web development projects' },
   },
   {
     area: 'geography',
@@ -33,7 +33,7 @@ export const portfolioFocuses: readonly PortfolioFocus[] = [
     title: 'Geography, GIS and research',
     description: 'A geography background grounded in spatial thinking, research, remote sensing and cartographic work.',
     highlights: ['GIS and remote sensing', 'Academic research', 'Maps and visual communication'],
-    link: { href: '/index.html#projects', label: 'Open the existing GIS and maps gallery' },
+    link: { href: '#projects-gis-maps', label: 'Explore GIS maps and research' },
   },
 ];
 
