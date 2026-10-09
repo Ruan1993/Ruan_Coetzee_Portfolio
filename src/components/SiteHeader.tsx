@@ -139,9 +139,7 @@ export function SiteHeader({ items: _items }: SiteHeaderProps) {
                 onClick={() => setIsExploreOpen((open) => !open)}
               >
                 Explore
-                <span className="nav-explore-chevron" aria-hidden="true">
-                  â–¾
-                </span>
+                <span className="nav-explore-chevron" aria-hidden="true"></span>
               </button>
 
               <div

@@ -3027,14 +3027,24 @@ main {
 }
 
 .nav-explore-chevron {
-  font-size: 0.7em;
-  transition: transform 0.2s ease;
+  position: relative;
   display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.25rem;
   line-height: 1;
+  transform: translateY(0.05em);
+  transition: transform 0.2s ease;
+  pointer-events: none;
+  /* CSS-drawn down chevron */
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform-origin: 50% 40%;
+  transform: rotate(45deg) translateY(-25%);
 }
 
 .nav-explore-trigger.is-open .nav-explore-chevron {
-  transform: rotate(180deg);
+  transform: rotate(225deg) translateY(-25%);
 }
 
 .nav-dropdown {
