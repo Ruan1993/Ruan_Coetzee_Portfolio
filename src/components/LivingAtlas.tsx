@@ -24,6 +24,8 @@ function project(lat: number, lon: number, yaw: number, pitch: number, radius: n
 
 export function LivingAtlas() {
   const [active, setActive] = useState(0);
+  const [displayedActive, setDisplayedActive] = useState(0);
+  const [cardPhase, setCardPhase] = useState<'idle' | 'exiting' | 'entering'>('idle');
   const [approached, setApproached] = useState(false);
   const [arrived, setArrived] = useState(false);
   const [travelling, setTravelling] = useState(false);
@@ -39,6 +41,8 @@ export function LivingAtlas() {
   const journeyRef = useRef(0);
   const lastFrameRef = useRef(0);
   const updateMarkersRef = useRef<() => void>(() => undefined);
+  const cardTransitionRef = useRef(0);
+  const cardTimersRef = useRef<number[]>([]);
   const points = useRef(Array.from({ length: 170 }, (_, i) => ({ x: Math.sin(i * 127.1) * 0.49 + 0.5, y: Math.sin(i * 41.37) * 0.49 + 0.5, r: (i % 5 + 1) * 0.35 })));
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export function LivingAtlas() {
     change(); media.addEventListener('change', change);
     return () => media.removeEventListener('change', change);
   }, []);
+  useEffect(() => () => cardTimersRef.current.forEach(window.clearTimeout), []);
   useEffect(() => {
     const updateMarkers = () => {
       const canvas = canvasRef.current;
@@ -203,6 +208,31 @@ export function LivingAtlas() {
   const select = (index: number) => {
     setActive(index); activeRef.current = index;
     setArrived(true); setTravelling(true);
+    cardTimersRef.current.forEach(window.clearTimeout);
+    cardTimersRef.current = [];
+    const transition = ++cardTransitionRef.current;
+    if (reducedRef.current) {
+      setDisplayedActive(index);
+      setCardPhase('idle');
+    } else if (!arrived) {
+      setDisplayedActive(index);
+      setCardPhase('entering');
+      cardTimersRef.current.push(window.setTimeout(() => {
+        if (cardTransitionRef.current === transition) setCardPhase('idle');
+      }, 150));
+    } else if (displayedActive !== index) {
+      setCardPhase('exiting');
+      cardTimersRef.current.push(window.setTimeout(() => {
+        if (cardTransitionRef.current !== transition) return;
+        setDisplayedActive(index);
+        setCardPhase('entering');
+        cardTimersRef.current.push(window.setTimeout(() => {
+          if (cardTransitionRef.current === transition) setCardPhase('idle');
+        }, 150));
+      }, 90));
+    } else {
+      setCardPhase('idle');
+    }
     journeyRef.current += 1;
     const item = destinations[index];
     const latitude = item.lat * Math.PI / 180;
@@ -224,7 +254,7 @@ export function LivingAtlas() {
     updateMarkersRef.current();
     canvasRef.current?.dispatchEvent(new Event('atlas-camera-change'));
   };
-  const reset = () => { journeyRef.current = 0; setArrived(false); setTravelling(false); camera.current.targetZoom = 0; setApproached(false); approachedRef.current = false; canvasRef.current?.dispatchEvent(new Event('atlas-camera-change')); };
+  const reset = () => { cardTimersRef.current.forEach(window.clearTimeout); cardTimersRef.current = []; cardTransitionRef.current += 1; setCardPhase('idle'); journeyRef.current = 0; setArrived(false); setTravelling(false); camera.current.targetZoom = 0; setApproached(false); approachedRef.current = false; canvasRef.current?.dispatchEvent(new Event('atlas-camera-change')); };
   const onCanvasPointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drag.current) return;
     const wasDrag = drag.current.moved; drag.current = null;
@@ -255,7 +285,7 @@ export function LivingAtlas() {
       </div>
       <div className="atlas-experience__hud">
         <div className="atlas-experience__destinations" aria-label="Choose a destination">{destinations.map((d, i) => <button key={d.id} className={active === i && approached ? 'atlas-destination is-selected' : 'atlas-destination'} style={{ '--atlas-color': d.color } as React.CSSProperties} type="button" onClick={() => select(i)} aria-pressed={active === i && approached}><span className="atlas-destination__number">0{i + 1}</span><span>{d.name}</span><span aria-hidden="true">↗</span></button>)}</div>
-        <div key={active} className={arrived ? `atlas-experience__detail is-visible atlas-experience__detail--${destinations[active].id}` : 'atlas-experience__detail'} aria-live="polite" aria-hidden={!arrived}><span>{destinations[active].kicker}</span><h3>{destinations[active].name}</h3><p>{destinations[active].detail}</p><div className="atlas-experience__detail-actions"><a href={destinations[active].href}>EXPLORE THIS CHAPTER ↗</a><button type="button" onClick={reset}>VIEW FULL GLOBE</button></div></div>
+        <div className={arrived ? `atlas-experience__detail is-visible is-${cardPhase} atlas-experience__detail--${destinations[displayedActive].id}` : 'atlas-experience__detail'} aria-live="polite" aria-hidden={!arrived}><span>{destinations[displayedActive].kicker}</span><h3>{destinations[displayedActive].name}</h3><p>{destinations[displayedActive].detail}</p><div className="atlas-experience__detail-actions"><a href={destinations[displayedActive].href}>EXPLORE THIS CHAPTER ↗</a><button type="button" onClick={reset}>VIEW FULL GLOBE</button></div></div>
       </div>
       <div className="atlas-experience__footer"><span>DRAG TO ROTATE · SELECT A MARKER</span><span>{motionReduced ? 'REDUCED MOTION' : 'INTERACTIVE WEBGL ATLAS'}</span></div>
     </div>;
