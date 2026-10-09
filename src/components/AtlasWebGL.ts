@@ -141,11 +141,17 @@ export function startAtlasWebGL(canvas: HTMLCanvasElement, camera: () => AtlasCa
   } catch (error) { console.warn('Atlas WebGL unavailable; using canvas fallback.',error); return null; }
   const uniforms = Object.fromEntries(['uResolution','uTime','uYaw','uPitch','uZoom','uReduced','uDestination'].map(name=>[name,gl.getUniformLocation(program,name)]));
   const vao=gl.createVertexArray();gl.bindVertexArray(vao);gl.useProgram(program);
-  let raf=0,disposed=false,visible=!document.hidden,lastWidth=0,lastHeight=0;
+  let raf=0,disposed=false,inViewport=true,visible=!document.hidden,lastWidth=0,lastHeight=0;
   let lastCamera={yaw:Number.NaN,pitch:Number.NaN,zoom:Number.NaN,destination:Number.NaN};
-  const visibility=()=>{visible=!document.hidden;};document.addEventListener('visibilitychange',visibility);
+  const schedule=()=>{if(!disposed&&!raf&&visible&&inViewport)raf=requestAnimationFrame(render);};
+  const visibility=()=>{visible=!document.hidden;if(visible)schedule();else if(raf){cancelAnimationFrame(raf);raf=0;}};
+  document.addEventListener('visibilitychange',visibility);
+  const intersection=new IntersectionObserver(([entry])=>{inViewport=entry.isIntersecting;if(inViewport)schedule();else if(raf){cancelAnimationFrame(raf);raf=0;}},{rootMargin:'120px'});
+  intersection.observe(canvas);
+  const resize=new ResizeObserver(()=>{lastWidth=0;schedule();});resize.observe(canvas);
   const started=performance.now();
   const render=()=>{
+    raf=0;
     if(disposed)return;
     const rect=canvas.getBoundingClientRect();
     const dpr=atlasPixelRatio(reduced());
@@ -158,8 +164,9 @@ export function startAtlasWebGL(canvas: HTMLCanvasElement, camera: () => AtlasCa
       gl.uniform2f(uniforms.uResolution,w,h);gl.uniform1f(uniforms.uTime,(performance.now()-started)/1000);gl.uniform1f(uniforms.uYaw,c.yaw);gl.uniform1f(uniforms.uPitch,c.pitch);gl.uniform1f(uniforms.uZoom,c.zoom);gl.uniform1f(uniforms.uReduced,reduced()?1:0);gl.uniform1f(uniforms.uDestination,c.destination ?? 1);gl.drawArrays(gl.TRIANGLES,0,3);
       lastCamera={...c,destination:c.destination ?? 1};
     }
-    raf=requestAnimationFrame(render);
+    if(cameraChanged)schedule();
   };
-  raf=requestAnimationFrame(render);
-  return ()=>{disposed=true;cancelAnimationFrame(raf);document.removeEventListener('visibilitychange',visibility);gl.deleteVertexArray(vao);gl.deleteProgram(program);};
+  schedule();
+  const cameraChange=()=>schedule();canvas.addEventListener('atlas-camera-change',cameraChange);canvas.addEventListener('atlas-render-frame',cameraChange);
+  return ()=>{disposed=true;cancelAnimationFrame(raf);intersection.disconnect();resize.disconnect();canvas.removeEventListener('atlas-camera-change',cameraChange);canvas.removeEventListener('atlas-render-frame',cameraChange);document.removeEventListener('visibilitychange',visibility);gl.deleteVertexArray(vao);gl.deleteProgram(program);};
 }

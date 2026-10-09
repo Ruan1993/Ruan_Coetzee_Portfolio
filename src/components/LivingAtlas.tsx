@@ -8,6 +8,14 @@ const destinations: Destination[] = [
   { id: 'digital', name: 'Digital Creation', kicker: 'BUILD BEYOND THE SCREEN', detail: 'Web experiences and creative projects developed through RC Digital Creations.', href: '#projects-websites', lat: 34, lon: -68, color: '#92b8ff' },
 ];
 const TAU = Math.PI * 2;
+const latitudeLines = Array.from({ length: 11 }, (_, line) => {
+  const lat = -75 + line * 15;
+  return { lat, coordinates: Array.from({ length: 181 }, (_, i) => [lat, -180 + i * 2] as [number, number]) };
+});
+const longitudeLines = Array.from({ length: 24 }, (_, line) => {
+  const lon = -180 + line * 15;
+  return Array.from({ length: 91 }, (_, i) => [-90 + i * 2, lon] as [number, number]);
+});
 function project(lat: number, lon: number, yaw: number, pitch: number, radius: number) {
   const a = lat * Math.PI / 180, b = lon * Math.PI / 180 + yaw;
   const x = Math.cos(a) * Math.sin(b), y = Math.sin(a), z = Math.cos(a) * Math.cos(b);
@@ -16,6 +24,8 @@ function project(lat: number, lon: number, yaw: number, pitch: number, radius: n
 
 export function LivingAtlas() {
   const [active, setActive] = useState(0);
+  const [displayedActive, setDisplayedActive] = useState(0);
+  const [cardPhase, setCardPhase] = useState<'idle' | 'exiting' | 'entering'>('idle');
   const [approached, setApproached] = useState(false);
   const [arrived, setArrived] = useState(false);
   const [travelling, setTravelling] = useState(false);
@@ -27,10 +37,12 @@ export function LivingAtlas() {
   const activeRef = useRef(0);
   const approachedRef = useRef(false);
   const reducedRef = useRef(false);
-  const panelRevealedRef = useRef(false);
   const frameRef = useRef(0);
   const journeyRef = useRef(0);
   const lastFrameRef = useRef(0);
+  const updateMarkersRef = useRef<() => void>(() => undefined);
+  const cardTransitionRef = useRef(0);
+  const cardTimersRef = useRef<number[]>([]);
   const points = useRef(Array.from({ length: 170 }, (_, i) => ({ x: Math.sin(i * 127.1) * 0.49 + 0.5, y: Math.sin(i * 41.37) * 0.49 + 0.5, r: (i % 5 + 1) * 0.35 })));
 
   useEffect(() => {
@@ -39,8 +51,8 @@ export function LivingAtlas() {
     change(); media.addEventListener('change', change);
     return () => media.removeEventListener('change', change);
   }, []);
+  useEffect(() => () => cardTimersRef.current.forEach(window.clearTimeout), []);
   useEffect(() => {
-    let frame = 0;
     const updateMarkers = () => {
       const canvas = canvasRef.current;
       const root = markersRef.current;
@@ -70,10 +82,12 @@ export function LivingAtlas() {
           marker.style.transform = `translate(-50%, -50%) translate(${width / 2 + height * (2 * nx / (distance - nz))}px, ${height / 2 - height * (2 * ry / (distance - nz))}px)`;
         });
       }
-      frame = requestAnimationFrame(updateMarkers);
     };
-    frame = requestAnimationFrame(updateMarkers);
-    return () => cancelAnimationFrame(frame);
+    updateMarkersRef.current = updateMarkers;
+    const observer = new ResizeObserver(updateMarkers);
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    updateMarkers();
+    return () => { observer.disconnect(); updateMarkersRef.current = () => undefined; };
   }, []);
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,13 +104,9 @@ export function LivingAtlas() {
         cam.yaw += (cam.targetYaw - cam.yaw) * ease;
         cam.pitch += (cam.targetPitch - cam.pitch) * ease;
         cam.zoom += (cam.targetZoom - cam.zoom) * ease;
+        updateMarkersRef.current();
+        canvas.dispatchEvent(new Event('atlas-render-frame'));
         const remaining = Math.abs(cam.targetYaw - cam.yaw) + Math.abs(cam.targetPitch - cam.pitch) + Math.abs(cam.targetZoom - cam.zoom);
-        // Start the panel transition during final approach so it is fully visible
-        // when the marker centres; camera easing continues at its existing speed.
-        if (journeyRef.current && approachedRef.current && !panelRevealedRef.current && remaining < .12) {
-          panelRevealedRef.current = true;
-          setArrived(true);
-        }
         if (journeyRef.current && approachedRef.current && remaining < .0015) {
           cam.yaw = cam.targetYaw;
           cam.pitch = cam.targetPitch;
@@ -114,25 +124,32 @@ export function LivingAtlas() {
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let width = 0, height = 0, tick = 0;
+    let width = 0, height = 0, tick = 0, inViewport = true, visible = !document.hidden, lastPaint = 0;
+    const schedule = () => { if (inViewport && visible && !frameRef.current) frameRef.current = requestAnimationFrame(render); };
     const resize = () => {
       const bounds = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
       width = bounds.width; height = bounds.height;
       canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      schedule();
     };
     const observer = new ResizeObserver(resize); observer.observe(canvas); resize();
-    const render = () => {
-      if (!width || !height) { frameRef.current = requestAnimationFrame(render); return; }
+    const intersection = new IntersectionObserver(([entry]) => { inViewport = entry.isIntersecting; if (inViewport) schedule(); else { cancelAnimationFrame(frameRef.current); frameRef.current = 0; } }, { rootMargin: '120px' });
+    intersection.observe(canvas);
+    const onVisibilityChange = () => { visible = !document.hidden; if (visible) schedule(); else { cancelAnimationFrame(frameRef.current); frameRef.current = 0; } };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    function render(now: number) {
+      frameRef.current = 0;
+      if (!ctx) return;
+      if (!width || !height) { schedule(); return; }
+      if (width < 700 && now - lastPaint < 1000 / 30) { schedule(); return; }
+      lastPaint = now;
       const cam = camera.current, ease = reducedRef.current ? 1 : 0.055;
       cam.yaw += (cam.targetYaw - cam.yaw) * ease;
       cam.pitch += (cam.targetPitch - cam.pitch) * ease;
       cam.zoom += (cam.targetZoom - cam.zoom) * ease;
+      updateMarkersRef.current();
       const remaining = Math.abs(cam.targetYaw - cam.yaw) + Math.abs(cam.targetPitch - cam.pitch) + Math.abs(cam.targetZoom - cam.zoom);
-      if (journeyRef.current && approachedRef.current && !panelRevealedRef.current && remaining < .12) {
-        panelRevealedRef.current = true;
-        setArrived(true);
-      }
       if (journeyRef.current && approachedRef.current && remaining < .0015) {
         cam.yaw = cam.targetYaw;
         cam.pitch = cam.targetPitch;
@@ -170,8 +187,8 @@ export function LivingAtlas() {
         });
         ctx.strokeStyle = `rgba(117,231,235,${opacity})`; ctx.lineWidth = .8; ctx.stroke();
       };
-      for (let lat = -75; lat <= 75; lat += 15) line(Array.from({ length: 181 }, (_, i) => [lat, -180 + i * 2]), lat === 0 ? .47 : .22);
-      for (let lon = -180; lon < 180; lon += 15) line(Array.from({ length: 91 }, (_, i) => [-90 + i * 2, lon]), .2);
+      latitudeLines.forEach(({ lat, coordinates }) => line(coordinates, lat === 0 ? .47 : .22));
+      longitudeLines.forEach(coordinates => line(coordinates, .2));
       ctx.restore();
       ctx.beginPath(); ctx.arc(cx, cy, radius, 0, TAU); ctx.strokeStyle = 'rgba(159,249,246,.55)'; ctx.lineWidth = 1.4; ctx.stroke();
       destinations.forEach((d, i) => {
@@ -183,15 +200,39 @@ export function LivingAtlas() {
         ctx.beginPath(); ctx.arc(x, y, i === activeRef.current ? 5 : 3, 0, TAU);
         ctx.fillStyle = d.color; ctx.shadowColor = d.color; ctx.shadowBlur = 20; ctx.fill(); ctx.shadowBlur = 0;
       });
-      frameRef.current = requestAnimationFrame(render);
-    };
-    frameRef.current = requestAnimationFrame(render);
-    return () => { cancelAnimationFrame(frameRef.current); observer.disconnect(); };
+      schedule();
+    }
+    schedule();
+    return () => { cancelAnimationFrame(frameRef.current); observer.disconnect(); intersection.disconnect(); document.removeEventListener('visibilitychange', onVisibilityChange); };
   }, []);
   const select = (index: number) => {
     setActive(index); activeRef.current = index;
-    setArrived(false); setTravelling(true);
-    panelRevealedRef.current = false;
+    setArrived(true); setTravelling(true);
+    cardTimersRef.current.forEach(window.clearTimeout);
+    cardTimersRef.current = [];
+    const transition = ++cardTransitionRef.current;
+    if (reducedRef.current) {
+      setDisplayedActive(index);
+      setCardPhase('idle');
+    } else if (!arrived) {
+      setDisplayedActive(index);
+      setCardPhase('entering');
+      cardTimersRef.current.push(window.setTimeout(() => {
+        if (cardTransitionRef.current === transition) setCardPhase('idle');
+      }, 220));
+    } else if (displayedActive !== index) {
+      setCardPhase('exiting');
+      cardTimersRef.current.push(window.setTimeout(() => {
+        if (cardTransitionRef.current !== transition) return;
+        setDisplayedActive(index);
+        setCardPhase('entering');
+        cardTimersRef.current.push(window.setTimeout(() => {
+          if (cardTransitionRef.current === transition) setCardPhase('idle');
+        }, 220));
+      }, 140));
+    } else {
+      setCardPhase('idle');
+    }
     journeyRef.current += 1;
     const item = destinations[index];
     const latitude = item.lat * Math.PI / 180;
@@ -210,9 +251,10 @@ export function LivingAtlas() {
     camera.current.targetPitch = targetPitch;
     camera.current.targetZoom = .08;
     setApproached(true); approachedRef.current = true;
+    updateMarkersRef.current();
     canvasRef.current?.dispatchEvent(new Event('atlas-camera-change'));
   };
-  const reset = () => { journeyRef.current = 0; panelRevealedRef.current = false; setArrived(false); setTravelling(false); camera.current.targetZoom = 0; setApproached(false); approachedRef.current = false; canvasRef.current?.dispatchEvent(new Event('atlas-camera-change')); };
+  const reset = () => { cardTimersRef.current.forEach(window.clearTimeout); cardTimersRef.current = []; cardTransitionRef.current += 1; setCardPhase('idle'); journeyRef.current = 0; setArrived(false); setTravelling(false); camera.current.targetZoom = 0; setApproached(false); approachedRef.current = false; canvasRef.current?.dispatchEvent(new Event('atlas-camera-change')); };
   const onCanvasPointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!drag.current) return;
     const wasDrag = drag.current.moved; drag.current = null;
@@ -236,14 +278,14 @@ export function LivingAtlas() {
   return <div className="atlas-experience" aria-labelledby="atlas-heading" aria-describedby="atlas-intro">
       <div className="atlas-experience__header"><span className="atlas-experience__brand">RC <span>/</span> THE LIVING ATLAS</span><span className="atlas-experience__status" aria-live="polite">{travelling ? 'TRAVELLING' : arrived ? 'DESTINATION LOCKED' : 'ORBITAL VIEW'}</span></div>
       <div className="atlas-experience__stage">
-      <canvas ref={canvasRef} className="atlas-experience__canvas" aria-hidden="true" onPointerDown={e => { if (approachedRef.current) { journeyRef.current = 0; setArrived(false); setTravelling(false); setApproached(false); approachedRef.current = false; } drag.current = { x: e.clientX, y: e.clientY, moved: false }; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={e => { if (!drag.current) return; const dx = e.clientX - drag.current.x, dy = e.clientY - drag.current.y; if (Math.abs(dx) + Math.abs(dy) > 2) drag.current.moved = true; camera.current.targetYaw += dx * .006; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + dy * .004)); drag.current.x = e.clientX; drag.current.y = e.clientY; e.currentTarget.dispatchEvent(new Event('atlas-camera-change')); }} onPointerUp={onCanvasPointerUp} onPointerCancel={() => { drag.current = null; }} />
+      <canvas ref={canvasRef} className="atlas-experience__canvas" aria-hidden="true" onPointerDown={e => { if (approachedRef.current) { journeyRef.current = 0; setArrived(false); setTravelling(false); setApproached(false); approachedRef.current = false; } drag.current = { x: e.clientX, y: e.clientY, moved: false }; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={e => { if (!drag.current) return; const dx = e.clientX - drag.current.x, dy = e.clientY - drag.current.y; if (Math.abs(dx) + Math.abs(dy) > 2) drag.current.moved = true; camera.current.targetYaw += dx * .006; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + dy * .004)); drag.current.x = e.clientX; drag.current.y = e.clientY; updateMarkersRef.current(); e.currentTarget.dispatchEvent(new Event('atlas-camera-change')); }} onPointerUp={onCanvasPointerUp} onPointerCancel={() => { drag.current = null; }} />
       <div className="atlas-experience__markers" ref={markersRef}>{destinations.map((d, i) => <button key={d.id} type="button" className={active === i && approached ? 'atlas-marker is-selected' : 'atlas-marker'} style={{ '--atlas-color': d.color } as React.CSSProperties} onClick={() => select(i)} aria-label={`Navigate globe to ${d.name}`} title={d.name}><span className="atlas-marker__dot"/><span className="atlas-marker__label">{d.name}</span></button>)}</div>
       <div className="atlas-experience__coordinates" aria-hidden="true">GEOGRAPHIC INTERFACE <span>●</span> {travelling ? 'TRAVELLING TO DESTINATION' : arrived ? 'DESTINATION LOCKED · LIVE ATLAS' : 'ORBITAL VIEW'}<br/>LAT / LON · INTERACTIVE PROJECTION</div>
       <h2 id="atlas-heading" className="sr-only">Explore my world</h2><p id="atlas-intro" className="sr-only">Rotate the globe, select a glowing location, and discover my work.</p>
       </div>
       <div className="atlas-experience__hud">
         <div className="atlas-experience__destinations" aria-label="Choose a destination">{destinations.map((d, i) => <button key={d.id} className={active === i && approached ? 'atlas-destination is-selected' : 'atlas-destination'} style={{ '--atlas-color': d.color } as React.CSSProperties} type="button" onClick={() => select(i)} aria-pressed={active === i && approached}><span className="atlas-destination__number">0{i + 1}</span><span>{d.name}</span><span aria-hidden="true">↗</span></button>)}</div>
-        <div key={active} className={arrived ? `atlas-experience__detail is-visible atlas-experience__detail--${destinations[active].id}` : 'atlas-experience__detail'} aria-live="polite" aria-hidden={!arrived}><span>{destinations[active].kicker}</span><h3>{destinations[active].name}</h3><p>{destinations[active].detail}</p><div className="atlas-experience__detail-actions"><a href={destinations[active].href}>EXPLORE THIS CHAPTER ↗</a><button type="button" onClick={reset}>VIEW FULL GLOBE</button></div></div>
+        <div className={arrived ? `atlas-experience__detail is-visible is-${cardPhase} atlas-experience__detail--${destinations[displayedActive].id}` : 'atlas-experience__detail'} aria-live="polite" aria-hidden={!arrived}><span>{destinations[displayedActive].kicker}</span><h3>{destinations[displayedActive].name}</h3><p>{destinations[displayedActive].detail}</p><div className="atlas-experience__detail-actions"><a href={destinations[displayedActive].href}>EXPLORE THIS CHAPTER ↗</a><button type="button" onClick={reset}>VIEW FULL GLOBE</button></div></div>
       </div>
       <div className="atlas-experience__footer"><span>DRAG TO ROTATE · SELECT A MARKER</span><span>{motionReduced ? 'REDUCED MOTION' : 'INTERACTIVE WEBGL ATLAS'}</span></div>
     </div>;
