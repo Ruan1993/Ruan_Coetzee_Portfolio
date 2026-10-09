@@ -446,10 +446,10 @@ main { width: min(1400px, calc(100% - clamp(2.5rem, 8vw, 9rem))); }
   position:relative;
   inset:auto;
   display:grid;
-  grid-template-rows:auto minmax(250px,1fr) auto auto;
+  grid-template-rows:auto minmax(220px,1fr) auto auto;
   width:100%;
-  height:clamp(500px,calc(100svh - 14rem),640px);
-  min-height:500px;
+  height:clamp(480px,calc(100svh - 16rem),620px);
+  min-height:480px;
   overflow:hidden;
   border:1px solid rgba(112,220,218,.22);
   border-radius:24px;
@@ -467,7 +467,7 @@ main { width: min(1400px, calc(100% - clamp(2.5rem, 8vw, 9rem))); }
   pointer-events:none;
 }
 .atlas-experience__canvas { z-index:0; touch-action:pan-y; }
-.atlas-experience__stage { position:relative; z-index:0; grid-row:2; min-height:250px; overflow:hidden; }
+.atlas-experience__stage { position:relative; z-index:0; grid-row:2; min-height:220px; overflow:hidden; }
 .atlas-experience__markers { z-index:3; }
 .atlas-experience__header {
   position:relative;
@@ -490,12 +490,12 @@ main { width: min(1400px, calc(100% - clamp(2.5rem, 8vw, 9rem))); }
   align-items:start;
   width:auto;
   max-height:none;
-  gap:.6rem;
-  padding:0 .85rem .55rem;
+  gap:.5rem;
+  padding:0 .75rem .45rem;
   overflow:visible;
 }
 .atlas-experience__destinations { position:relative; inset:auto; width:auto; display:grid; gap:.3rem; }
-.atlas-destination { min-height:40px; padding:.52rem .72rem; border-radius:9px; font-size:.78rem; }
+.atlas-destination { min-height:38px; padding:.45rem .68rem; border-radius:9px; font-size:.76rem; }
 .atlas-destination:hover,.atlas-destination.is-selected { transform:none; }
 .atlas-experience__detail,
 .atlas-experience__detail--teaching,
@@ -504,29 +504,29 @@ main { width: min(1400px, calc(100% - clamp(2.5rem, 8vw, 9rem))); }
   position:relative;
   inset:auto;
   width:auto;
-  min-height:145px;
+  min-height:136px;
   max-height:none;
   margin:0;
-  padding:.8rem .9rem;
+  padding:.72rem .85rem;
   border-radius:12px;
   overflow:auto;
 }
 .atlas-experience__detail:not(.is-visible) { display:block; visibility:hidden; }
 .atlas-experience__detail h3 { margin:.25rem 0; font-size:1.2rem; }
-.atlas-experience__detail p { margin-bottom:.55rem; font-size:.78rem; line-height:1.5; }
+.atlas-experience__detail p { margin-bottom:.45rem; font-size:.78rem; line-height:1.45; }
 .atlas-experience__footer {
   position:relative;
   inset:auto;
   z-index:4;
   grid-row:4;
-  padding:.1rem .85rem .65rem;
+  padding:.05rem .75rem .5rem;
   font-size:.52rem;
 }
 .hero-visual__caption { margin-top:.8rem; }
 
 @media (max-width:1100px) {
   .hero--cinematic { grid-template-columns:minmax(280px,.72fr) minmax(480px,1.28fr); gap:2rem; }
-  .atlas-experience { min-height:500px; }
+  .atlas-experience { min-height:480px; }
 }
 
 @media (max-width:800px) {
@@ -580,11 +580,12 @@ main { width: min(1400px, calc(100% - clamp(2.5rem, 8vw, 9rem))); }
 
 /* The card transition begins on selection and remains independent of globe travel. */
 .atlas-experience__detail.is-visible { animation:none; opacity:1; transform:translateY(0) scale(1); }
-.atlas-experience__detail.is-exiting { opacity:0; transform:translateY(-6px) scale(.992); transition:opacity 90ms ease-in,transform 90ms ease-in; }
-.atlas-experience__detail.is-entering { animation:atlas-card-enter 150ms cubic-bezier(.2,.75,.25,1) both; }
+.atlas-experience__detail.is-exiting { opacity:.08; transform:translateX(-12px) translateY(-2px) scale(.985); transition:opacity 140ms cubic-bezier(.4,0,1,1),transform 140ms cubic-bezier(.4,0,.7,1),box-shadow 140ms ease-in; box-shadow:0 8px 24px #0005; }
+.atlas-experience__detail.is-entering { animation:atlas-card-enter 220ms cubic-bezier(.16,.72,.24,1) both; }
 @keyframes atlas-card-enter {
-  from { opacity:0; transform:translateY(7px) scale(.992); }
-  to { opacity:1; transform:translateY(0) scale(1); }
+  0% { opacity:.08; transform:translateX(16px) translateY(3px) scale(.98); box-shadow:0 10px 28px #0006,0 0 18px color-mix(in srgb,var(--destination-accent) 18%,transparent); }
+  58% { opacity:.92; box-shadow:0 12px 34px #0007,0 0 30px color-mix(in srgb,var(--destination-accent) 26%,transparent); }
+  100% { opacity:1; transform:translateX(0) translateY(0) scale(1); box-shadow:0 12px 34px #0007,0 0 18px color-mix(in srgb,var(--destination-accent) 12%,transparent); }
 }
 @media (prefers-reduced-motion:reduce) {
   .atlas-experience__detail.is-visible { animation:none; transition:none; opacity:1; transform:none; }

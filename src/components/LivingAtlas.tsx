@@ -219,7 +219,7 @@ export function LivingAtlas() {
       setCardPhase('entering');
       cardTimersRef.current.push(window.setTimeout(() => {
         if (cardTransitionRef.current === transition) setCardPhase('idle');
-      }, 150));
+      }, 220));
     } else if (displayedActive !== index) {
       setCardPhase('exiting');
       cardTimersRef.current.push(window.setTimeout(() => {
@@ -228,8 +228,8 @@ export function LivingAtlas() {
         setCardPhase('entering');
         cardTimersRef.current.push(window.setTimeout(() => {
           if (cardTransitionRef.current === transition) setCardPhase('idle');
-        }, 150));
-      }, 90));
+        }, 220));
+      }, 140));
     } else {
       setCardPhase('idle');
     }
