@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { NavigationItem } from '../types/portfolio';
-import { AtlasNavigator } from './AtlasNavigator';
+
 
 interface SiteHeaderProps {
   items: readonly NavigationItem[];
@@ -23,10 +23,10 @@ const exploreLinks = [
 export function SiteHeader({ items: _items }: SiteHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
-  const [isAtlasOpen, setIsAtlasOpen] = useState(false);
+
   const exploreRef = useRef<HTMLDivElement>(null);
   const exploreButtonRef = useRef<HTMLButtonElement>(null);
-  const globeButtonRef = useRef<HTMLButtonElement>(null);
+
   const dropdownId = useId();
 
   const closeAll = useCallback(() => {
@@ -34,15 +34,7 @@ export function SiteHeader({ items: _items }: SiteHeaderProps) {
     setIsExploreOpen(false);
   }, []);
 
-  const openAtlas = useCallback(() => {
-    setIsExploreOpen(false);
-    setIsMenuOpen(false);
-    setIsAtlasOpen(true);
-  }, []);
 
-  const closeAtlas = useCallback(() => {
-    setIsAtlasOpen(false);
-  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -148,7 +140,7 @@ export function SiteHeader({ items: _items }: SiteHeaderProps) {
               >
                 Explore
                 <span className="nav-explore-chevron" aria-hidden="true">
-                  ▾
+                  â–¾
                 </span>
               </button>
 
@@ -172,17 +164,7 @@ export function SiteHeader({ items: _items }: SiteHeaderProps) {
               </div>
             </div>
 
-            <button
-              ref={globeButtonRef}
-              type="button"
-              className="nav-globe"
-              aria-label="Open Atlas Navigator"
-              aria-haspopup="dialog"
-              aria-expanded={isAtlasOpen}
-              onClick={openAtlas}
-            >
-              <span aria-hidden="true">🌍</span>
-            </button>
+            <span className="nav-globe" aria-label="Atlas Navigator coming soon" role="img">🌍</span>
 
             <a href="#contact" className="nav-contact" onClick={closeAll}>
               Contact
@@ -190,12 +172,6 @@ export function SiteHeader({ items: _items }: SiteHeaderProps) {
           </div>
         </nav>
       </header>
-
-      <AtlasNavigator
-        open={isAtlasOpen}
-        onClose={closeAtlas}
-        returnFocusRef={globeButtonRef}
-      />
     </>
   );
 }
