@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { startAtlasWebGL } from './AtlasWebGL';
+import { beginAtlasDrag, moveAtlasDrag, finishAtlasDrag, pitchForView, type AtlasDrag } from './AtlasInteraction';
 import { destinationCamera, fallbackBounds, fallbackMarker, hitFallbackMarker, observeAtlasSize, observeAtlasVisibility, projectFallback } from './AtlasFallback';
 
 type Destination = { id: string; name: string; kicker: string; detail: string; href: string; lat: number; lon: number; color: string };
@@ -32,7 +33,7 @@ export function LivingAtlas() {
   const [useFallback, setUseFallback] = useState(false);
   const markersRef = useRef<HTMLDivElement>(null);
   const camera = useRef({ yaw: 0.2, pitch: 0.1, zoom: 0, targetYaw: 0.2, targetPitch: 0.1, targetZoom: 0 });
-  const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const drag = useRef<AtlasDrag | null>(null);
   const activeRef = useRef(0);
   const approachedRef = useRef(false);
   const reducedRef = useRef(false);
@@ -266,9 +267,11 @@ export function LivingAtlas() {
   };
   const reset = () => { cardTimersRef.current.forEach(window.clearTimeout); cardTimersRef.current = []; cardTransitionRef.current += 1; setCardPhase('idle'); journeyRef.current = 0; setArrived(false); setTravelling(false); camera.current.targetZoom = 0; setApproached(false); approachedRef.current = false; canvasRef.current?.dispatchEvent(new Event('atlas-camera-change')); };
   const onCanvasPointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drag.current) return;
-    const wasDrag = drag.current.moved; drag.current = null;
-    if (wasDrag) return;
+    const result = finishAtlasDrag(drag.current, event.pointerId);
+    if (!result) return;
+    drag.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (result.moved) return;
     const canvas = canvasRef.current; if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     if (fallbackRef.current) {
@@ -289,6 +292,14 @@ export function LivingAtlas() {
     });
     if (nearest >= 0) select(nearest);
   };
+  const tiltGlobe = (direction: number) => {
+    const cam = camera.current;
+    journeyRef.current = 0; setTravelling(false); setArrived(false); setApproached(false); approachedRef.current = false;
+    cam.targetYaw = cam.yaw;
+    cam.targetPitch = Math.max(-1.2, Math.min(1.2, cam.pitch + pitchForView(-direction * .2, cam.yaw)));
+    cam.targetZoom = cam.zoom;
+    canvasRef.current?.dispatchEvent(new Event('atlas-camera-change'));
+  };
   useEffect(() => {
     select(0);
   }, []);
@@ -296,7 +307,34 @@ export function LivingAtlas() {
       <div className="atlas-experience__header"><span className="atlas-experience__brand">RC <span>/</span> THE LIVING ATLAS</span><span className="atlas-experience__status" aria-live="polite">{travelling ? 'TRAVELLING' : arrived ? 'DESTINATION LOCKED' : 'ORBITAL VIEW'}</span></div>
       <div className="atlas-experience__stage">
       <canvas ref={fallbackCanvasRef} className="atlas-experience__canvas" aria-hidden="true" style={{ visibility: useFallback ? 'visible' : 'hidden', pointerEvents: 'none' }} />
-      <canvas ref={canvasRef} className="atlas-experience__canvas" style={{ opacity: useFallback ? 0 : 1 }} aria-hidden="true" onPointerDown={e => { if (approachedRef.current) { journeyRef.current = 0; setArrived(false); setTravelling(false); setApproached(false); approachedRef.current = false; } drag.current = { x: e.clientX, y: e.clientY, moved: false }; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={e => { if (!drag.current) return; const dx = e.clientX - drag.current.x, dy = e.clientY - drag.current.y; if (Math.abs(dx) + Math.abs(dy) > 2) drag.current.moved = true; camera.current.targetYaw += dx * .006; camera.current.targetPitch = Math.max(-1.2, Math.min(1.2, camera.current.targetPitch + dy * .004)); drag.current.x = e.clientX; drag.current.y = e.clientY; updateMarkersRef.current(); e.currentTarget.dispatchEvent(new Event('atlas-camera-change')); }} onPointerUp={onCanvasPointerUp} onPointerCancel={() => { drag.current = null; }} />
+      <canvas ref={canvasRef} className="atlas-experience__canvas" style={{ opacity: useFallback ? 0 : 1 }} aria-hidden="true"
+        onPointerDown={e => {
+          if (!e.isPrimary || e.button !== 0 || drag.current) return;
+          drag.current = beginAtlasDrag(e.pointerId, e.clientX, e.clientY, e.pointerType === 'touch');
+          e.currentTarget.setPointerCapture(e.pointerId);
+        }}
+        onPointerMove={e => {
+          if (!drag.current) return;
+          const delta = moveAtlasDrag(drag.current, e.pointerId, e.clientX, e.clientY);
+          if (!delta) return;
+          const cam = camera.current;
+          if (delta.first) {
+            journeyRef.current = 0; setArrived(false); setTravelling(false); setApproached(false); approachedRef.current = false;
+            cam.targetYaw = cam.yaw; cam.targetPitch = cam.pitch; cam.targetZoom = cam.zoom;
+          }
+          cam.yaw += delta.yaw;
+          cam.pitch = Math.max(-1.2, Math.min(1.2, cam.pitch + pitchForView(delta.pitch, cam.yaw)));
+          cam.targetYaw = cam.yaw; cam.targetPitch = cam.pitch;
+          updateMarkersRef.current();
+          e.currentTarget.dispatchEvent(new Event('atlas-camera-change'));
+        }}
+        onPointerUp={onCanvasPointerUp}
+        onPointerCancel={e => { if (drag.current?.pointerId === e.pointerId) drag.current = null; }}
+        onLostPointerCapture={e => { if (drag.current?.pointerId === e.pointerId) drag.current = null; }} />
+      <div className="atlas-tilt" aria-label="Globe tilt controls">
+        <button type="button" aria-label="Tilt globe up" onClick={() => tiltGlobe(-1)}>↑</button>
+        <button type="button" aria-label="Tilt globe down" onClick={() => tiltGlobe(1)}>↓</button>
+      </div>
       <div className="atlas-experience__markers" ref={markersRef}>{destinations.map((d, i) => <button key={d.id} type="button" className={active === i && approached ? 'atlas-marker is-selected' : 'atlas-marker'} style={{ '--atlas-color': d.color } as React.CSSProperties} onClick={() => select(i)} aria-label={`Navigate globe to ${d.name}`} title={d.name}><span className="atlas-marker__dot"/><span className="atlas-marker__label">{d.name}</span></button>)}</div>
       <div className="atlas-experience__coordinates" aria-hidden="true">GEOGRAPHIC INTERFACE <span>●</span> {travelling ? 'TRAVELLING TO DESTINATION' : arrived ? 'DESTINATION LOCKED · LIVE ATLAS' : 'ORBITAL VIEW'}<br/>LAT / LON · INTERACTIVE PROJECTION</div>
       <h2 id="atlas-heading" className="sr-only">Explore my world</h2><p id="atlas-intro" className="sr-only">Rotate the globe, select a glowing location, and discover my work.</p>

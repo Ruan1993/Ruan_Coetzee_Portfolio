@@ -2651,6 +2651,12 @@ main {
   min-height: 190px;
   overflow: hidden;
 }
+.atlas-tilt { display: none; }
+@media (pointer: coarse) {
+  .atlas-tilt { position: absolute; right: 0.6rem; bottom: 0.6rem; z-index: 4; display: flex; gap: 0.4rem; }
+  .atlas-tilt button { width: 2.75rem; height: 2.75rem; border: 1px solid #73f5e1; border-radius: 50%; color: #efffff; background: #041728e8; font: inherit; cursor: pointer; }
+  .atlas-tilt button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+}
 .atlas-experience__markers {
   z-index: 3;
 }
