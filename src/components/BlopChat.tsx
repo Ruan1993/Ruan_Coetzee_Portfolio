@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { BLOP_CONTEXT, BLOP_SECTION_LINKS, BLOP_STARTER_QUESTIONS, BLOP_WELCOME_MESSAGE } from '../data/blop';
 import { BlopRequestError, getLocalSafetyResponse, sendBlopMessage, trimChatHistory } from '../services/blop';
+import { isNearConversationEnd, scrollToReplyStart } from '../services/blopScroll';
 import type { ChatHistoryItem, ChatMessage } from '../types/chat';
 
 const welcomeMessage: ChatMessage = { id: 'blop-welcome', role: 'model', text: BLOP_WELCOME_MESSAGE };
@@ -19,6 +20,8 @@ export function BlopChat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
+  const latestReplyRef = useRef<HTMLDivElement>(null);
+  const followReplyRef = useRef(false);
   const requestInFlight = useRef(false);
   const endpoint = import.meta.env.DEV
     ? '/__blop_dev/api/chat'
@@ -29,18 +32,19 @@ export function BlopChat() {
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    messageListRef.current?.scrollTo({
-      top: messageListRef.current.scrollHeight,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    });
-  }, [isOpen, messages, isLoading]);
+    const latest = messages[messages.length - 1];
+    if (!isOpen || latest?.role !== 'model' || latest.id === welcomeMessage.id || !followReplyRef.current) return;
+    followReplyRef.current = false;
+    const list = messageListRef.current, reply = latestReplyRef.current;
+    if (!list || !reply) return;
+    scrollToReplyStart(list, reply, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, [isOpen, messages]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+      followReplyRef.current = false;
       setIsOpen(false);
       toggleRef.current?.focus();
     };
@@ -49,6 +53,7 @@ export function BlopChat() {
   }, [isOpen]);
 
   const closeChat = () => {
+    followReplyRef.current = false;
     setIsOpen(false);
     toggleRef.current?.focus();
   };
@@ -57,6 +62,8 @@ export function BlopChat() {
     const query = prompt.trim();
     if (!query || requestInFlight.current) return;
 
+    const list = messageListRef.current;
+    followReplyRef.current = !!list && (messages.length === 1 || isNearConversationEnd(list));
     requestInFlight.current = true;
     setInput('');
     setError('');
@@ -83,11 +90,11 @@ export function BlopChat() {
       const message = caughtError instanceof BlopRequestError
         ? caughtError.message
         : 'Blop could not connect. Please try again.';
+      followReplyRef.current = false;
       setError(message);
     } finally {
       requestInFlight.current = false;
       setIsLoading(false);
-      inputRef.current?.focus();
     }
   };
 
@@ -104,7 +111,7 @@ export function BlopChat() {
         type="button"
         aria-expanded={isOpen}
         aria-controls="blop-dialog"
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => { if (isOpen) followReplyRef.current = false; setIsOpen((current) => !current); }}
       >
         <span aria-hidden="true">✦</span>
         <span>{isOpen ? 'Hide Blop' : 'Ask Blop'}</span>
@@ -126,9 +133,23 @@ export function BlopChat() {
           <button type="button" className="blop-close" aria-label="Close Blop chat" onClick={closeChat}>×</button>
         </header>
 
-        <div ref={messageListRef} className="blop-messages" aria-live="polite" aria-relevant="additions text">
+        <div
+          ref={messageListRef}
+          className="blop-messages"
+          aria-live="polite"
+          aria-relevant="additions text"
+          onScroll={(event) => {
+            if (requestInFlight.current && !isNearConversationEnd(event.currentTarget)) followReplyRef.current = false;
+          }}
+          onWheel={() => { followReplyRef.current = false; }}
+          onTouchMove={() => { followReplyRef.current = false; }}
+          onPointerDown={() => { followReplyRef.current = false; }}
+          onKeyDown={(event) => {
+            if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) followReplyRef.current = false;
+          }}
+        >
           {messages.map((message) => (
-            <div className={`blop-message blop-message--${message.role}`} key={message.id}>
+            <div ref={message.role === 'model' && message.id !== welcomeMessage.id ? latestReplyRef : undefined} className={`blop-message blop-message--${message.role}`} key={message.id}>
               <p className="blop-message-label">{message.role === 'model' ? 'Blop' : 'You'}</p>
               <p>{message.text}</p>
             </div>

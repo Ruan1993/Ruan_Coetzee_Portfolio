@@ -596,8 +596,11 @@ h2 {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-height: 0;
+  min-width: 0;
   gap: 0.8rem;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
   overscroll-behavior: contain;
 }
@@ -609,6 +612,7 @@ h2 {
   background: #27272a;
   line-height: 1.5;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .blop-message--user {
   align-self: flex-end;
@@ -697,11 +701,10 @@ h2 {
 }
 .blop-navigation {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
-  overflow-x: auto;
   padding: 0 0.85rem 0.8rem;
   background: #18181b;
-  scrollbar-width: thin;
 }
 .blop-navigation a {
   flex: 0 0 auto;

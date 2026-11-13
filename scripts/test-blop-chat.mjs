@@ -21,6 +21,17 @@ try {
   const chatComponent = readFileSync(resolve(root, 'src/components/BlopChat.tsx'), 'utf8');
   assert.match(chatComponent, /import\.meta\.env\.DEV[\s\S]*?'\/__blop_dev\/api\/chat'/);
 
+  const { isNearConversationEnd, scrollToReplyStart } = await server.ssrLoadModule('/src/services/blopScroll.ts');
+  assert.equal(isNearConversationEnd({ scrollHeight: 1000, scrollTop: 580, clientHeight: 400 }), true);
+  assert.equal(isNearConversationEnd({ scrollHeight: 1000, scrollTop: 300, clientHeight: 400 }), false);
+  let scrollOptions;
+  const list = { scrollTop: 120, clientTop: 1, getBoundingClientRect: () => ({ top: 100 }), scrollTo: (options) => { scrollOptions = options; } };
+  const reply = { getBoundingClientRect: () => ({ top: 450 }) };
+  scrollToReplyStart(list, reply, false);
+  assert.deepEqual(scrollOptions, { top: 469, behavior: 'smooth' });
+  scrollToReplyStart(list, reply, true);
+  assert.deepEqual(scrollOptions, { top: 469, behavior: 'auto' });
+
   const { BLOP_CONTEXT, BLOP_STARTER_QUESTIONS } = await server.ssrLoadModule('/src/data/blop.ts');
   const { BlopRequestError, getLocalSafetyResponse, sendBlopMessage, trimChatHistory } = await server.ssrLoadModule('/src/services/blop.ts');
 
