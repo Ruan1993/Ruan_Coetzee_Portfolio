@@ -126,47 +126,147 @@ function atlasPixelRatio(reducedMotion: boolean) {
   return Math.min(window.devicePixelRatio || 1, cap);
 }
 
-export function startAtlasWebGL(canvas: HTMLCanvasElement, camera: () => AtlasCamera, reduced: () => boolean): (() => void) | null {
-  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' });
-  if (!gl) return null;
-  const compile = (type: number, source: string) => { const shader = gl.createShader(type); if (!shader) throw new Error('WebGL shader unavailable'); gl.shaderSource(shader, source); gl.compileShader(shader); if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader) || 'Shader compile failed'); return shader; };
-  let program: WebGLProgram;
+export function startAtlasWebGL(
+  canvas: HTMLCanvasElement,
+  camera: () => AtlasCamera,
+  reduced: () => boolean,
+  onFailure: () => void,
+): (() => void) | null {
+  let gl: WebGL2RenderingContext | null;
   try {
-    const vs=compile(gl.VERTEX_SHADER,vertex),fs=compile(gl.FRAGMENT_SHADER,fragment);
-    const p=gl.createProgram(); if (!p) return null;
-    gl.attachShader(p,vs);gl.attachShader(p,fs);gl.linkProgram(p);
-    gl.deleteShader(vs);gl.deleteShader(fs);
-    if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)||'Shader link failed');
-    program=p;
-  } catch (error) { console.warn('Atlas WebGL unavailable; using canvas fallback.',error); return null; }
-  const uniforms = Object.fromEntries(['uResolution','uTime','uYaw','uPitch','uZoom','uReduced','uDestination'].map(name=>[name,gl.getUniformLocation(program,name)]));
-  const vao=gl.createVertexArray();gl.bindVertexArray(vao);gl.useProgram(program);
-  let raf=0,disposed=false,inViewport=true,visible=!document.hidden,lastWidth=0,lastHeight=0;
-  let lastCamera={yaw:Number.NaN,pitch:Number.NaN,zoom:Number.NaN,destination:Number.NaN};
-  const schedule=()=>{if(!disposed&&!raf&&visible&&inViewport)raf=requestAnimationFrame(render);};
-  const visibility=()=>{visible=!document.hidden;if(visible)schedule();else if(raf){cancelAnimationFrame(raf);raf=0;}};
-  document.addEventListener('visibilitychange',visibility);
-  const intersection=new IntersectionObserver(([entry])=>{inViewport=entry.isIntersecting;if(inViewport)schedule();else if(raf){cancelAnimationFrame(raf);raf=0;}},{rootMargin:'120px'});
-  intersection.observe(canvas);
-  const resize=new ResizeObserver(()=>{lastWidth=0;schedule();});resize.observe(canvas);
-  const started=performance.now();
-  const render=()=>{
-    raf=0;
-    if(disposed)return;
-    const rect=canvas.getBoundingClientRect();
-    const dpr=atlasPixelRatio(reduced());
-    const w=Math.max(1,Math.round(rect.width*dpr)),h=Math.max(1,Math.round(rect.height*dpr));
-    const resized=w!==lastWidth||h!==lastHeight;
-    if(resized){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);lastWidth=w;lastHeight=h;canvas.dataset.pixelRatio=dpr.toFixed(2);}
-    const c=camera();
-    const cameraChanged=Math.abs(c.yaw-lastCamera.yaw)>.0001||Math.abs(c.pitch-lastCamera.pitch)>.0001||Math.abs(c.zoom-lastCamera.zoom)>.0001 || (c.destination ?? 0)!==lastCamera.destination;
-    if(visible&&(resized||cameraChanged)){
-      gl.uniform2f(uniforms.uResolution,w,h);gl.uniform1f(uniforms.uTime,(performance.now()-started)/1000);gl.uniform1f(uniforms.uYaw,c.yaw);gl.uniform1f(uniforms.uPitch,c.pitch);gl.uniform1f(uniforms.uZoom,c.zoom);gl.uniform1f(uniforms.uReduced,reduced()?1:0);gl.uniform1f(uniforms.uDestination,c.destination ?? 1);gl.drawArrays(gl.TRIANGLES,0,3);
-      lastCamera={...c,destination:c.destination ?? 1};
-    }
-    if(cameraChanged)schedule();
+    gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: 'high-performance' });
+  } catch (error) {
+    console.warn('Atlas WebGL initialization failed.', error);
+    return null;
+  }
+  if (!gl) return null;
+  const context = gl;
+  type Resources = { program: WebGLProgram; vao: WebGLVertexArrayObject; uniforms: Record<string, WebGLUniformLocation | null> };
+  let resources: Resources | null = null;
+  let raf = 0, disposed = false, lost = false, inViewport = true, visible = !document.hidden, lastWidth = 0, lastHeight = 0;
+  let lastCamera = { yaw: Number.NaN, pitch: Number.NaN, zoom: Number.NaN, destination: Number.NaN };
+  let restorationTimer: ReturnType<typeof setTimeout> | undefined;
+  let lossGeneration = 0;
+  let intersection: IntersectionObserver | undefined;
+  let resize: ResizeObserver | undefined;
+  const started = performance.now();
+
+  const deleteResources = () => {
+    if (!resources) return;
+    context.deleteVertexArray(resources.vao);
+    context.deleteProgram(resources.program);
+    resources = null;
   };
-  schedule();
-  const cameraChange=()=>schedule();canvas.addEventListener('atlas-camera-change',cameraChange);canvas.addEventListener('atlas-render-frame',cameraChange);
-  return ()=>{disposed=true;cancelAnimationFrame(raf);intersection.disconnect();resize.disconnect();canvas.removeEventListener('atlas-camera-change',cameraChange);canvas.removeEventListener('atlas-render-frame',cameraChange);document.removeEventListener('visibilitychange',visibility);gl.deleteVertexArray(vao);gl.deleteProgram(program);};
+  const initialize = () => {
+    let vs: WebGLShader | null = null, fs: WebGLShader | null = null;
+    let program: WebGLProgram | null = null, vao: WebGLVertexArrayObject | null = null;
+    try {
+      const compile = (type: number, source: string) => {
+        const shader = context.createShader(type);
+        if (!shader) throw new Error('WebGL shader unavailable');
+        try {
+          context.shaderSource(shader, source);
+          context.compileShader(shader);
+          if (!context.getShaderParameter(shader, context.COMPILE_STATUS)) throw new Error(context.getShaderInfoLog(shader) || 'Shader compile failed');
+          return shader;
+        } catch (error) { context.deleteShader(shader); throw error; }
+      };
+      vs = compile(context.VERTEX_SHADER, vertex);
+      fs = compile(context.FRAGMENT_SHADER, fragment);
+      program = context.createProgram();
+      if (!program) throw new Error('WebGL program unavailable');
+      context.attachShader(program, vs); context.attachShader(program, fs); context.linkProgram(program);
+      if (!context.getProgramParameter(program, context.LINK_STATUS)) throw new Error(context.getProgramInfoLog(program) || 'Shader link failed');
+      const uniforms = Object.fromEntries(['uResolution','uTime','uYaw','uPitch','uZoom','uReduced','uDestination'].map(name => [name, context.getUniformLocation(program!, name)]));
+      vao = context.createVertexArray();
+      if (!vao) throw new Error('WebGL vertex array unavailable');
+      context.bindVertexArray(vao); context.useProgram(program);
+      resources = { program, vao, uniforms };
+      program = null; vao = null;
+    } finally {
+      if (vs) context.deleteShader(vs);
+      if (fs) context.deleteShader(fs);
+      if (vao) context.deleteVertexArray(vao);
+      if (program) context.deleteProgram(program);
+    }
+  };
+  const schedule = () => { if (!disposed && !lost && !raf && visible && inViewport) raf = requestAnimationFrame(render); };
+  const visibility = () => { visible = !document.hidden; if (visible) schedule(); else if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+  const cameraChange = () => schedule();
+  const contextLost = (event: Event) => {
+    event.preventDefault();
+    lost = true;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    // The browser invalidates these handles; restoration creates fresh objects.
+    resources = null;
+    if (restorationTimer) clearTimeout(restorationTimer);
+    const generation = ++lossGeneration;
+    restorationTimer = setTimeout(() => {
+      if (disposed || !lost || generation !== lossGeneration) return;
+      cleanup();
+      onFailure();
+    }, 8000);
+  };
+  const contextRestored = () => {
+    if (disposed || !lost) return;
+    lossGeneration++;
+    if (restorationTimer) { clearTimeout(restorationTimer); restorationTimer = undefined; }
+    try {
+      initialize();
+      lost = false;
+      lastWidth = 0; lastHeight = 0;
+      lastCamera = { yaw: Number.NaN, pitch: Number.NaN, zoom: Number.NaN, destination: Number.NaN };
+      schedule();
+    } catch (error) {
+      console.warn('Atlas WebGL restoration failed; using canvas fallback.', error);
+      cleanup();
+      onFailure();
+    }
+  };
+  const render = () => {
+    raf = 0;
+    if (disposed || lost || !resources) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = atlasPixelRatio(reduced());
+    const w = Math.max(1, Math.round(rect.width * dpr)), h = Math.max(1, Math.round(rect.height * dpr));
+    const resized = w !== lastWidth || h !== lastHeight;
+    if (resized) { canvas.width = w; canvas.height = h; context.viewport(0, 0, w, h); lastWidth = w; lastHeight = h; canvas.dataset.pixelRatio = dpr.toFixed(2); }
+    const c = camera();
+    const cameraChanged = Math.abs(c.yaw-lastCamera.yaw)>.0001 || Math.abs(c.pitch-lastCamera.pitch)>.0001 || Math.abs(c.zoom-lastCamera.zoom)>.0001 || (c.destination ?? 0)!==lastCamera.destination;
+    if (visible && (resized || cameraChanged)) {
+      const { uniforms } = resources;
+      context.uniform2f(uniforms.uResolution,w,h); context.uniform1f(uniforms.uTime,(performance.now()-started)/1000); context.uniform1f(uniforms.uYaw,c.yaw); context.uniform1f(uniforms.uPitch,c.pitch); context.uniform1f(uniforms.uZoom,c.zoom); context.uniform1f(uniforms.uReduced,reduced()?1:0); context.uniform1f(uniforms.uDestination,c.destination ?? 1); context.drawArrays(context.TRIANGLES,0,3);
+      lastCamera = { ...c, destination: c.destination ?? 1 };
+    }
+    if (cameraChanged) schedule();
+  };
+  const cleanup = () => {
+    if (disposed) return;
+    disposed = true;
+    lossGeneration++;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    if (restorationTimer) clearTimeout(restorationTimer);
+    restorationTimer = undefined;
+    intersection?.disconnect(); resize?.disconnect();
+    canvas.removeEventListener('webglcontextlost', contextLost); canvas.removeEventListener('webglcontextrestored', contextRestored);
+    canvas.removeEventListener('atlas-camera-change', cameraChange); canvas.removeEventListener('atlas-render-frame', cameraChange);
+    document.removeEventListener('visibilitychange', visibility);
+    deleteResources();
+  };
+  try {
+    initialize();
+    canvas.addEventListener('webglcontextlost', contextLost); canvas.addEventListener('webglcontextrestored', contextRestored);
+    canvas.addEventListener('atlas-camera-change', cameraChange); canvas.addEventListener('atlas-render-frame', cameraChange);
+    document.addEventListener('visibilitychange', visibility);
+    intersection = new IntersectionObserver(([entry]) => { inViewport = entry.isIntersecting; if (inViewport) schedule(); else if (raf) { cancelAnimationFrame(raf); raf = 0; } }, { rootMargin: '120px' });
+    intersection.observe(canvas);
+    resize = new ResizeObserver(() => { lastWidth = 0; schedule(); }); resize.observe(canvas);
+    schedule();
+    return cleanup;
+  } catch (error) {
+    cleanup();
+    console.warn('Atlas WebGL initialization failed; using canvas fallback.', error);
+    return null;
+  }
 }
